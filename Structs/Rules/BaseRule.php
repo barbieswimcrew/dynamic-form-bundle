@@ -11,7 +11,7 @@ namespace barbieswimcrew\DynamicFormsBundle\Structs\Rules;
 
 use barbieswimcrew\DynamicFormsBundle\Structs\Rules\Base\RuleInterface;
 
-class BasicRule implements RuleInterface
+class BaseRule implements RuleInterface
 {
 
     /** @var string $value */
@@ -51,5 +51,5 @@ class BasicRule implements RuleInterface
     {
         return $this->hideFields;
     }
-    
+
 }

@@ -13,7 +13,7 @@ use barbieswimcrew\DynamicFormsBundle\Exceptions\Rules\DuplicateRuleValueExcepti
 use barbieswimcrew\DynamicFormsBundle\Structs\Rules\Base\RuleInterface;
 use barbieswimcrew\DynamicFormsBundle\Structs\Rules\Base\RulesetInterface;
 
-class BasicRuleset implements RulesetInterface
+class BaseRuleset implements RulesetInterface
 {
     /**
      * @var array
