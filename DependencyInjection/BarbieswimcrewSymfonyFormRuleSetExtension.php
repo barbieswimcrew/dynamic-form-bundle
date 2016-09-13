@@ -22,6 +22,10 @@ class BarbieswimcrewSymfonyFormRuleSetExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('barbieswimcrew_symfony_form_rule_set.strict_mode', $config['strict_mode']);
+        $container->setParameter('barbieswimcrew_symfony_form_rule_set.data_attr_id', $config['data_attr_id']);
+        $container->setParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets', $config['data_attr_targets']);
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
     }

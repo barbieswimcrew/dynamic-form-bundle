@@ -20,9 +20,19 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('barbieswimcrew_symfony_form_rule_set');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode
+            ->children()
+                ->booleanNode('strict_mode')
+                    ->defaultFalse()
+                ->end()
+                ->scalarNode('data_attr_id')
+                    ->defaultValue('data-related-id')
+                ->end()
+                ->scalarNode('data_attr_targets')
+                    ->defaultValue('data-related-targets')
+                ->end()
+            ->end();
+
 
         return $treeBuilder;
     }
