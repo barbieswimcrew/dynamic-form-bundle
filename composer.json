@@ -1,0 +1,26 @@
+{
+    "name": "barbieswimcrew/symfony-form-ruleset-bundle",
+    "description": "Symfony form component extensions for dynamic modification of forms via JS and user submitted data",
+    "keywords": ["symfony", "symfony2", "symfony3", "form", "validation"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Martin Schindler"
+        },
+        {
+            "name": "Anton Zoffmann"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=5.4.0",
+        "symfony/validator": ">=2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Barbieswimcrew\\Bundle\\SymfonyFormRuleSetBundle\\": ""
+        }
+    }
+}
+ 
