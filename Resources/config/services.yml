@@ -4,11 +4,6 @@ services:
         tags:
             - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\FormType }
 
-    barbieswimcrew_symfony_form_rule_set.text_type_extension:
-        class: Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedTextTypeExtension
-        tags:
-            - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\TextType }
-
     barbieswimcrew_symfony_form_rule_set.choice_type_extension:
         class: Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedChoiceTypeExtension
         tags:

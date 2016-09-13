@@ -6,7 +6,7 @@
  * Time: 15:03
  */
 
-namespace barbieswimcrew\DynamicFormsBundle\Structs\Rules\Base;
+namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base;
 
 
 interface RuleInterface

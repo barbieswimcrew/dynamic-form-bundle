@@ -6,12 +6,9 @@
  * Time: 15:04
  */
 
-namespace barbieswimcrew\DynamicFormsBundle\Structs\Rules;
+namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base;
 
-
-use barbieswimcrew\DynamicFormsBundle\Structs\Rules\Base\RuleInterface;
-
-class BaseRule implements RuleInterface
+abstract class AbstractBaseRule implements RuleInterface
 {
 
     /** @var string $value */

@@ -6,14 +6,12 @@
  * Time: 15:05
  */
 
-namespace barbieswimcrew\DynamicFormsBundle\Structs\Rules;
+namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base;
 
 
-use barbieswimcrew\DynamicFormsBundle\Exceptions\Rules\DuplicateRuleValueException;
-use barbieswimcrew\DynamicFormsBundle\Structs\Rules\Base\RuleInterface;
-use barbieswimcrew\DynamicFormsBundle\Structs\Rules\Base\RulesetInterface;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\DuplicateRuleValueException;
 
-class BaseRuleset implements RulesetInterface
+abstract class AbstractBaseRuleSet implements RuleSetInterface
 {
     /**
      * @var array
@@ -26,6 +24,7 @@ class BaseRuleset implements RulesetInterface
      */
     public function __construct(array $rules)
     {
+        $this->rules = array();
         foreach ($rules as $rule) {
             $this->addRule($rule);
         }
@@ -39,7 +38,7 @@ class BaseRuleset implements RulesetInterface
     private function addRule(RuleInterface $rule)
     {
 
-        if(array_key_exists($rule->getValue(), $this->rules)){
+        if (array_key_exists($rule->getValue(), $this->rules)) {
             throw new DuplicateRuleValueException($rule->getValue());
         }
 

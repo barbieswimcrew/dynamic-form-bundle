@@ -9,6 +9,7 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -17,7 +18,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class RelatedChoiceTypeExtension extends AbstractRelatedExtension
 {
 
-    const OPTION_NAME_CHOICE_RELATED = "choice_related";
+    const OPTION_NAME_RULES = "rules";
 
     /**
      * Returns the name of the form field type being extended
@@ -36,7 +37,7 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $this->defineNewFieldOption($resolver, self::OPTION_NAME_CHOICE_RELATED, array(), array('array'));
+        $this->defineNewFieldOption($resolver, self::OPTION_NAME_RULES, null, array(RuleSetInterface::class));
     }
 
     /**
@@ -48,29 +49,16 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        # check if any field with $fieldName exists
+        //@todo: Über die gesetzten Rules müssen hier noch die Targets an die View gebunden werden
 
-        foreach ($options[self::OPTION_NAME_CHOICE_RELATED] as $key => $row) {
-            $fields = $this->getValidFields($form, $row);
-
-//            var_dump($form->getName());
-//            var_dump($key);
-
-//            $view->vars['choices'][$key]['attr']['hans'] = "done";
-
-//            die();
-
-            #@todo: Target Felder an Choices binden!!
-            if (count($fields) > 0) {
-                # add target fields data
-                $view->vars['choices'][$key]->attr['aha'] = 'zefix';
-//                die(var_dump($view->vars['choices']));
-//                var_dump($view->vars['choices']);
-                $view->vars['attr'][self::ATTR_NAME_RELATED_TARGET] = implode(',', $fields);
-            }
-
-//            echo '<br><br>';
-        }
+//        foreach ($options[self::OPTION_NAME_RULES] as $key => $row) {
+//            $fields = $this->getValidFields($form, $row);
+//
+//            if (count($fields) > 0) {
+//                # add target fields data
+//                $view->vars['attr'][self::ATTR_NAME_RELATED_TARGETS] = implode(',', $fields);
+//            }
+//        }
 
     }
 

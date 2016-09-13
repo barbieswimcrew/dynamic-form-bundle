@@ -6,7 +6,7 @@
  * Time: 15:24
  */
 
-namespace barbieswimcrew\DynamicFormsBundle\Exceptions\Rules;
+namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules;
 
 
 use Exception;

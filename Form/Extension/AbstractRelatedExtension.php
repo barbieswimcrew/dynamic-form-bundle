@@ -17,7 +17,7 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
 {
 
     const ATTR_NAME_RELATED_NAME = "data-related-id";
-    const ATTR_NAME_RELATED_TARGET = "data-related-target";
+    const ATTR_NAME_RELATED_TARGETS = "data-related-targets";
 
     /**
      * This method validates if a field with $fieldName exists in the form
