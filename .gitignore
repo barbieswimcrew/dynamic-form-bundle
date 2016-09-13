@@ -1,3 +1,21 @@
+#OS generated files
+.DS_STORE
+.DS_STORE?
+._*
+-Spotlight-V11
+.Trashes
+Icon?
+ethumbs.db
+Thumbs.db
+
+#editor related
+.idea
+
+#composer related
+composer.phar
+composer.lock
+vendor/
+
 # Cache and logs (Symfony2)
 /app/cache/*
 /app/logs/*
