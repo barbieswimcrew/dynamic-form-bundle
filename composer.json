@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Barbieswimcrew\\Bundle\\SymfonyFormRuleSetBundle": ""
+            "Barbieswimcrew\\Bundle\\SymfonyFormRuleSetBundle\\": ""
         }
     }
 }
