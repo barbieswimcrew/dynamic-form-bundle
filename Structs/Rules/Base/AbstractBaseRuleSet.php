@@ -55,5 +55,9 @@ abstract class AbstractBaseRuleSet implements RuleSetInterface
         return $this->rules[$value];
     }
 
+    public function getRules()
+    {
+        return $this->rules;
+    }
 
 }
