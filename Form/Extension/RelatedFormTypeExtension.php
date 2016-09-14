@@ -9,7 +9,10 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber\ReconfigurationSubscriber;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 
@@ -37,6 +40,19 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
     {
         # add valid target data name to itself
         $view->vars['attr'][self::ATTR_NAME_RELATED_NAME] = $view->vars['id'];
+    }
+
+    /**
+     * 
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     * @author Anton Zoffmann
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        if($builder->hasOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES) and ($ruleset = $builder->getOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES)) instanceof RuleSetInterface){
+            $builder->addEventSubscriber(new ReconfigurationSubscriber($ruleset, $builder));
+        }
     }
 
 }

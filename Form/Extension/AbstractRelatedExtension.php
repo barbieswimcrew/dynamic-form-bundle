@@ -26,6 +26,7 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
      * @param array $relatedFields
      * @author Martin Schindler
      * @return array
+     * @deprecated evaluate if we need this function because of handling in ReconfigurationSubscriber
      */
     protected function getValidFields(FormInterface $form, array $relatedFields)
     {
@@ -61,6 +62,7 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
      * @param $fieldName
      * @author Martin Schindler
      * @return bool
+     * @deprecated 
      */
     private function childExists(FormInterface $child, $fieldName)
     {
