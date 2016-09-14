@@ -39,7 +39,7 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         # add valid target data name to itself
-        $view->vars['attr'][self::ATTR_NAME_RELATED_NAME] = $view->vars['id'];
+        $view->vars['attr'][$this->attr['id']] = $view->vars['id'];
     }
 
     /**
