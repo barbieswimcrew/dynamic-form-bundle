@@ -1,10 +1,18 @@
 services:
+    barbieswimcrew_symfony_form_rule_set.abstract_related_extension:
+        abstract: true
+        class: Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\AbstractRelatedExtension
+        arguments:
+            - "@service_container"
+
     barbieswimcrew_symfony_form_rule_set.form_type_extension:
+        parent: barbieswimcrew_symfony_form_rule_set.abstract_related_extension
         class: Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension
         tags:
             - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\FormType }
 
     barbieswimcrew_symfony_form_rule_set.choice_type_extension:
+        parent: barbieswimcrew_symfony_form_rule_set.abstract_related_extension
         class: Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedChoiceTypeExtension
         tags:
             - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\ChoiceType }

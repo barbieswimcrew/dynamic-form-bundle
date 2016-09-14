@@ -9,6 +9,7 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -16,8 +17,24 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class AbstractRelatedExtension extends AbstractTypeExtension
 {
 
-    const ATTR_NAME_RELATED_NAME = "data-related-id";
-    const ATTR_NAME_RELATED_TARGETS = "data-related-targets";
+    /** @var boolean $strictMode */
+    protected $strictMode;
+
+    /** @var array $attr */
+    protected $attr;
+
+    /**
+     * AbstractRelatedExtension constructor.
+     * @param Container $container
+     */
+    public function __construct(Container $container)
+    {
+        $this->strictMode = $container->getParameter('barbieswimcrew_symfony_form_rule_set.strict_mode');
+        $this->attr['id'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_id');
+        $this->attr['isRequired'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_is_required');
+        $this->attr['targetsShow'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_show');
+        $this->attr['targetsHide'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_hide');
+    }
 
     /**
      * This method validates if a field with $fieldName exists in the form

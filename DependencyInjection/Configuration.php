@@ -26,13 +26,18 @@ class Configuration implements ConfigurationInterface
                     ->defaultFalse()
                 ->end()
                 ->scalarNode('data_attr_id')
-                    ->defaultValue('data-related-id')
+                    ->defaultValue('data-sfhandler-id')
                 ->end()
-                ->scalarNode('data_attr_targets')
-                    ->defaultValue('data-related-targets')
+                ->scalarNode('data_attr_targets_show')
+                    ->defaultValue('data-sfhandler-targets-show')
+                ->end()
+                ->scalarNode('data_attr_targets_hide')
+                    ->defaultValue('data-sfhandler-targets-hide')
+                ->end()
+                ->scalarNode('data_attr_is_required')
+                    ->defaultValue('data-sfhandler-required')
                 ->end()
             ->end();
-
 
         return $treeBuilder;
     }
