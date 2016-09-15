@@ -32,7 +32,9 @@
         idSelector: "data-sfhandler-id",
         targetsSelectorShow: "data-sfhandler-targets-show",
         targetsSelectorHide: "data-sfhandler-targets-hide",
-        hiddenClass: "hidden"
+        isRequiredAttribute: "data-sfhandler-required",
+        hiddenClass: "hidden",
+        hasErrorClass: "has-error"
     };
 
     /**
@@ -126,19 +128,25 @@
             $(fields).each(function () {
                 var $elementSelector = $("*[" + me.settings.idSelector + "*='" + this + "']");
                 var $labelSelector = $("label[for*='" + this + "']");
+                var $errorSelector = $elementSelector.parent("." + me.settings.hasErrorClass);
+
                 if (type === "show") {
                     me.showElement($elementSelector);
+                    me.handleRequired($elementSelector, type);
                     me.showElement($labelSelector);
+                    me.showElement($errorSelector);
                 }
                 if (type === "hide") {
                     me.hideElement($elementSelector);
+                    me.handleRequired($elementSelector, type);
                     me.hideElement($labelSelector);
+                    me.hideElement($errorSelector);
                 }
             });
         },
 
         /**
-         * Wrapper methopd to define how to show a field
+         * Wrapper method to define how to show a field
          * in a way it could be overridden in a custom use case
          * @param $element
          */
@@ -156,6 +164,24 @@
             var me = this;
             if (!$element.hasClass(me.settings.hiddenClass)) {
                 $element.addClass(me.settings.hiddenClass);
+            }
+        },
+
+        /**
+         * Method to toggle required attribute for fields
+         * @param $element
+         * @param type
+         */
+        handleRequired: function ($element, type) {
+            var me = this;
+
+            if (type === "show") {
+                if ($element.attr(me.settings.isRequiredAttribute)) {
+                    $($element).attr('required', 'required');
+                }
+            }
+            if (type === "hide") {
+                $($element).removeAttr('required');
             }
         }
     }

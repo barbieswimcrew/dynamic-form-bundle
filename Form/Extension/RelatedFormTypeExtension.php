@@ -1,10 +1,5 @@
 <?php
-/**
- * @author Martin Schindler
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 11.09.16
- * Time: 11:55
- */
+
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
@@ -15,9 +10,12 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RelatedFormTypeExtension extends AbstractRelatedExtension
 {
+
+    const OPTION_NAME_ORIGINAL_OPTIONS = "original_options";
 
     /**
      * Returns the name of the form field type being extended
@@ -27,6 +25,16 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
     public function getExtendedType()
     {
         return FormType::class;
+    }
+
+    /**
+     * Registering the new form field options
+     * @param OptionsResolver $resolver
+     * @author Martin Schindler
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $this->defineNewFieldOption($resolver, self::OPTION_NAME_ORIGINAL_OPTIONS, array(), array('array'));
     }
 
     /**
@@ -40,17 +48,22 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
     {
         # add valid target data name to itself
         $view->vars['attr'][$this->attr['id']] = $view->vars['id'];
+
+        # add temp required data attribute if field is set required true
+        if($options['required'] === true){
+            $view->vars['attr'][$this->attr['isRequired']] = "required";
+        }
     }
 
     /**
-     * 
+     *
      * @param FormBuilderInterface $builder
      * @param array $options
      * @author Anton Zoffmann
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if($builder->hasOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES) and ($ruleset = $builder->getOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES)) instanceof RuleSetInterface){
+        if ($builder->hasOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES) and ($ruleset = $builder->getOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES)) instanceof RuleSetInterface) {
             $builder->addEventSubscriber(new ReconfigurationSubscriber($ruleset, $builder));
         }
     }

@@ -1,10 +1,5 @@
 <?php
-/**
- * @author Martin Schindler
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 11.09.16
- * Time: 11:55
- */
+
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
@@ -55,7 +50,7 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
         parent::finishView($view, $form, $options);
 
         /** @var RuleSet $ruleSet */
-        $ruleSet = $options['rules'];
+        $ruleSet = $options[self::OPTION_NAME_RULES];
 
         /** @var ChoiceView $choice */
         foreach ($view->vars['choices'] as $choice) {
