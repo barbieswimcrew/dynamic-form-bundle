@@ -9,6 +9,8 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\WrongIdDefinitionException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,6 +22,8 @@ use Symfony\Component\Form\ResolvedFormTypeInterface;
 
 class ReconfigurationSubscriber implements EventSubscriberInterface
 {
+    const CSS_HIDDEN_CLASS = "hidden";
+
     /** @var RuleSetInterface $ruleSet */
     private $ruleSet;
     /** @var FormBuilderInterface $builder */
@@ -35,6 +39,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     {
         return array(
             FormEvents::PRE_SUBMIT => "reconfigureFormWithSumbittedData",
+            FormEvents::POST_SET_DATA => "reconfigureFormWithSumbittedData",
         );
     }
 
@@ -48,34 +53,55 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         /** @var FormInterface $originForm */
         $originForm = $event->getForm();
+        /** @var FormInterface $rootForm */
+        $rootForm = $originForm->getRoot();
+
         $data = $event->getData();
 
         /**
          * THIS IS THE DESICION which rule should be effected
          * @var RuleInterface $rule
-         * @todo throw exception if no rule for data exists -> should be done with the builder->add method call because its thrown with programming time
          */
-        $rule = $this->ruleSet->getRule($data);
+        try {
+            $rule = $this->ruleSet->getRule($data);
 
-        /** @var array $hideFields */
-        $hideFieldIds = $rule->getHideFields();
+            /** @var array $hideFields */
+            $hideFieldIds = $rule->getHideFields();
 
-        foreach ($hideFieldIds as $hideFieldId) {
+            foreach ($hideFieldIds as $hideFieldId) {
 
-            $hideField = $this->getFormForIdRecursive($hideFieldId, $originForm->getRoot());
+                $hideField = $this->getFormForIdRecursive($hideFieldId, $rootForm);
 
-            $this->replaceForm(
-                $hideField,
-                array(
-                    'required' => false,
-                    'constraints' => array(),
-                    'attr' => array('class' => 'hidden'),
-                    'label_attr' => array('class' => 'hidden')
-                ));
+                $this->replaceForm(
+                    $hideField,
+                    array(
+                        'required' => false,
+                        'constraints' => array(),
+                        'mapped' => false,
+                    ),
+                    true
+                );
 
+            }
+
+            /** @var array $showFieldIds */
+            $showFieldIds = $rule->getShowFields();
+
+            foreach ($showFieldIds as $showFieldId) {
+                $showField = $this->getFormForIdRecursive($showFieldId, $rootForm);
+
+                $this->replaceForm(
+                    $showField,
+                    array(
+                        'required' => true,
+                        'mapped' => true,
+                    ),
+                    false
+                );
+            }
+        } catch (NoRuleDefinedException $exception) {
+            # nothing to to if no rule is defined
         }
-
-        //todo show fields
 
     }
 
@@ -83,9 +109,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * sets a new configured form to the parent of the original form
      * @param FormInterface $originForm
      * @param array $overrideOptions
+     * @param boolean $hidden
      * @author Anton Zoffmann
      */
-    private function replaceForm(FormInterface $originForm, array $overrideOptions)
+    private function replaceForm(FormInterface $originForm, array $overrideOptions, $hidden)
     {
         if (($resolvedType = $originForm->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
             $type = get_class($resolvedType->getInnerType());
@@ -93,7 +120,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $type = get_class($originForm->getConfig()->getType());
         }
 
-        $mergedOptions = $this->mergeOptions($originForm->getConfig()->getOptions(), $overrideOptions);
+        $mergedOptions = $this->mergeOptions($originForm->getConfig()->getOptions(), $overrideOptions, $hidden);
 
         $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
 
@@ -124,10 +151,13 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             }
 
             if ($form->has($currentPath)) {
-                return $this->getFormForIdRecursive(implode('_', $path), $form->get($currentPath), false);
+                try{
+                    return $this->getFormForIdRecursive(implode('_', $path), $form->get($currentPath), false);
+                } catch(WrongIdDefinitionException $exception){
+                    throw new WrongIdDefinitionException($cssFormId, 500, $exception);
+                }
             } else {
-                //todo build dynamic exception message to ease the locating of the accessor string
-                throw new \Exception('Invalid Accessor');
+                throw new WrongIdDefinitionException($cssFormId);
             }
         } elseif ($cssFormId === "" and $firstRecursion === false) {
             # here we are in our last recursion, so we return the injected form because its the one we want
@@ -142,10 +172,11 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     /**
      * @param array $originOptions
      * @param array $overrideOptions
+     * @param boolean $hidden
      * @author Anton Zoffmann
      * @return array
      */
-    private function mergeOptions(array $originOptions, array $overrideOptions)
+    private function mergeOptions(array $originOptions, array $overrideOptions, $hidden = false)
     {
         # array recursive because the options array contains other arrays to be merged (attr,...)
         $merged = array_merge($originOptions, $overrideOptions, array('auto_initialize' => false));
@@ -154,35 +185,70 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 //        $merged = array_merge($merged, array('auto_initialize' => false));
 
         # string concatenation for css classes
-        if(isset($originOptions['attr']['class']) and isset($overrideOptions['attr']['class'])){
-            $this->mergeAttrClasses($originOptions['attr']['class'], $overrideOptions['attr']['class'], $merged['attr']['class']);
+        if (isset($originOptions['attr']['class']) and isset($overrideOptions['attr']['class'])) {
+            $merged['attr']['class'] = $this->mergeAttrClasses($originOptions['attr']['class'], $overrideOptions['attr']['class']);
         }
 
         # string concatenation for label css classes
-        if(isset($originOptions['label_attr']['class']) and isset($overrideOptions['label_attr']['class'])){
-            $this->mergeAttrClasses($originOptions['label_attr']['class'], $overrideOptions['label_attr']['class'], $merged['label_attr']['class']);
+        if (isset($originOptions['label_attr']['class']) and isset($overrideOptions['label_attr']['class'])) {
+            $merged['label_attr']['class'] = $this->mergeAttrClasses($originOptions['label_attr']['class'], $overrideOptions['label_attr']['class']);
         }
+
+        $merged['attr']['class'] = $this->handleHiddenClass($merged['attr'], $hidden);
+        $merged['label_attr']['class'] = $this->handleHiddenClass($merged['label_attr'], $hidden);
 
         return $merged;
     }
 
     /**
      * merge class strings
-     * @param $originClasses
-     * @param $overrideClasses
-     * @param $mergedClasses
+     * @param string $originClasses
+     * @param string $overrideClasses
+     * @return string
      * @author Anton Zoffmann
      */
-    private function mergeAttrClasses($originClasses, $overrideClasses, &$mergedClasses)
+    private function mergeAttrClasses($originClasses, $overrideClasses)
     {
+        $originClasses = explode(' ', $originClasses);
         $overrideClasses = explode(' ', $overrideClasses);
-        $merged['attr']['class'] = $originClasses;
 
-        foreach ($overrideClasses as $overrideClass) {
-            if(strpos($originClasses, $overrideClass) !== false){
-                $mergedClasses .= sprintf(' %s', $overrideClass);
-            }
+        return implode(' ', array_merge($originClasses, $overrideClasses));
+    }
+
+    /**
+     * @param array $attributes
+     * @param boolean $hidden
+     * @author Anton Zoffmann
+     * @return string
+     */
+    private function handleHiddenClass(array $attributes, $hidden)
+    {
+        # define classes string for further handling
+        if (isset($attributes['class'])) {
+            $classes = $attributes['class'];
+        } elseif ($hidden === true) {
+            return self::CSS_HIDDEN_CLASS;
+        } else {
+            $classes = "";
         }
+
+        $hiddenContained = strpos($classes, self::CSS_HIDDEN_CLASS) !== false;
+
+        if ($hiddenContained and $hidden === false) {
+            # if hidden must be removed
+            $classes = explode(' ', $classes);
+            $key = array_search(self::CSS_HIDDEN_CLASS, $classes);
+            unset($classes[$key]);
+
+            return implode(' ', $classes);
+        }
+
+        if (!$hiddenContained and $hidden === true) {
+            # if hidden must be added
+            return sprintf("%s %s", $classes, self::CSS_HIDDEN_CLASS);
+        }
+
+        return $classes;
     }
 
 }

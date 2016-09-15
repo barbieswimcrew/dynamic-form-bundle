@@ -10,6 +10,7 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base;
 
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\DuplicateRuleValueException;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 
 abstract class AbstractBaseRuleSet implements RuleSetInterface
 {
@@ -49,9 +50,14 @@ abstract class AbstractBaseRuleSet implements RuleSetInterface
      * @param $value
      * @author Anton Zoffmann
      * @return RuleInterface
+     * @throws NoRuleDefinedException
      */
     public function getRule($value)
     {
+        if(!array_key_exists($value, $this->rules)){
+            throw new NoRuleDefinedException($value);
+        }
+
         return $this->rules[$value];
     }
 
