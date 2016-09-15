@@ -56,9 +56,11 @@ abstract class AbstractBaseRuleSet implements RuleSetInterface
     {
         if(!array_key_exists($value, $this->rules)){
             throw new NoRuleDefinedException($value);
-        }else{
-            return false;
         }
+
+        return $this->rules[$value];
+
+    }
 
     public function getRules()
     {
