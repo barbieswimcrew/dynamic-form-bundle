@@ -9,6 +9,7 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\RuleSet;
@@ -58,19 +59,22 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
 
         /** @var ChoiceView $choice */
         foreach ($view->vars['choices'] as $choice) {
-            $rule = $ruleSet->getRule($choice->value);
-            if ($rule instanceof RuleInterface) {
+            try{
+                $rule = $ruleSet->getRule($choice->value);
                 $choice->attr = $this->replaceAttributes($choice, $rule);
+            } catch (NoRuleDefinedException $exception){
+                # nothing to do, just interrupt the workflow
             }
         }
 
         # if expanded option is set true, append the data attributes to the underlying form child radio elements
         if ($options['expanded']) {
             foreach ($view as $childView) {
-
-                $rule = $ruleSet->getRule($childView->vars['value']);
-                if ($rule instanceof RuleInterface) {
+                try{
+                    $rule = $ruleSet->getRule($childView->vars['value']);
                     $childView->vars['attr'] = $this->replaceAttributes($childView, $rule);
+                } catch (NoRuleDefinedException $exception){
+                    # nothing to do, just interrupt the workflow
                 }
             }
         }
