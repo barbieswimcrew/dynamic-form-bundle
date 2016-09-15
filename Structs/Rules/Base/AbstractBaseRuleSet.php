@@ -49,17 +49,20 @@ abstract class AbstractBaseRuleSet implements RuleSetInterface
     /**
      * @param $value
      * @author Anton Zoffmann
-     * @return RuleInterface
+     * @return RuleInterface|bool
      * @throws NoRuleDefinedException
      */
     public function getRule($value)
     {
         if(!array_key_exists($value, $this->rules)){
             throw new NoRuleDefinedException($value);
+        }else{
+            return false;
         }
 
-        return $this->rules[$value];
+    public function getRules()
+    {
+        return $this->rules;
     }
-
 
 }
