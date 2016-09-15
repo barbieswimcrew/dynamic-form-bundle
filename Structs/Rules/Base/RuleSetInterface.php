@@ -16,4 +16,11 @@ interface RuleSetInterface
      * @throws NoRuleDefinedException
      */
     public function getRule($value);
+
+    /**
+     * returns an array with all contained rules
+     * @author Anton Zoffmann
+     * @return array
+     */
+    public function getRules();
 }

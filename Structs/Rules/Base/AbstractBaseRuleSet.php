@@ -57,6 +57,11 @@ abstract class AbstractBaseRuleSet implements RuleSetInterface
 
     }
 
+    /**
+     * returns an array with all contained rules
+     * @author Anton Zoffmann
+     * @return array
+     */
     public function getRules()
     {
         return $this->rules;

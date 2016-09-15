@@ -104,8 +104,8 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     {
         /** @var FormInterface $originForm */
         $originForm = $event->getForm();
-        /** @var FormInterface $rootForm */
-        $rootForm = $originForm->getRoot();
+        /** @var FormInterface $parentForm */
+        $parentForm = $originForm->getParent();
 
         $data = $event->getData();
 
@@ -113,21 +113,18 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
          * THIS IS THE DECISION which rule should be effected
          * @var RuleInterface $rule
          */
-        try {
-            $rule = $this->ruleSet->getRule($data);
 
-            foreach ($rule->getHideFields() as $hideFieldId) {
-                $hideField = $this->getFormById($hideFieldId, $rootForm);
-                $this->replaceForm($hideField, array('original_options' => $hideField->getConfig()->getOptions()), true);
-            }
+        $rules = $this->ruleSet->getRules();
+        /** @var RuleInterface $rule */
+        foreach ($rules as $rule) {
 
             foreach ($rule->getShowFields() as $showFieldId) {
-                $showField = $this->getFormById($showFieldId, $rootForm);
+                $showField = $this->getFormById($showFieldId, $parentForm);
                 $this->replaceForm($showField, array('original_options' => $showField->getConfig()->getOptions()), false);
             }
-        } catch (NoRuleDefinedException $exception) {
-            # nothing to to if no rule is defined
+
         }
+
     }
 
     /**
