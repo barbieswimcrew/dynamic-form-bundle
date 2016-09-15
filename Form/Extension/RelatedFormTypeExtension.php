@@ -10,9 +10,12 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RelatedFormTypeExtension extends AbstractRelatedExtension
 {
+
+    const OPTION_NAME_ORIGINAL_OPTIONS = "original_options";
 
     /**
      * Returns the name of the form field type being extended
@@ -22,6 +25,16 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
     public function getExtendedType()
     {
         return FormType::class;
+    }
+
+    /**
+     * Registering the new form field options
+     * @param OptionsResolver $resolver
+     * @author Martin Schindler
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $this->defineNewFieldOption($resolver, self::OPTION_NAME_ORIGINAL_OPTIONS, array(), array('array'));
     }
 
     /**

@@ -6,6 +6,8 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\WrongIdDefinitionException;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\AbstractBaseRule;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -34,6 +36,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     {
         return array(
             FormEvents::PRE_SUBMIT => "reconfigureFormWithSumbittedData",
+            FormEvents::PRE_SET_DATA => "setOriginalOptions",
             FormEvents::POST_SET_DATA => "reconfigureFormWithSumbittedData",
         );
     }
@@ -84,20 +87,48 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($showFieldIds as $showFieldId) {
                 $showField = $this->getFormById($showFieldId, $rootForm);
-
-                $this->replaceForm(
-                    $showField,
-                    array(
-                        'required' => true,
-                        'mapped' => true,
-                    ),
-                    false
-                );
+                $this->replaceForm($showField, $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS), false);
             }
         } catch (NoRuleDefinedException $exception) {
             # nothing to to if no rule is defined
         }
 
+    }
+
+    /**
+     * Copying the original field's options data and dumping them into original_options
+     * to get constraints and other data after submitting
+     * @param FormEvent $event
+     * @author Martin Schindler
+     */
+    public function setOriginalOptions(FormEvent $event)
+    {
+        /** @var FormInterface $originForm */
+        $originForm = $event->getForm();
+        /** @var FormInterface $rootForm */
+        $rootForm = $originForm->getRoot();
+
+        $data = $event->getData();
+
+        /**
+         * THIS IS THE DECISION which rule should be effected
+         * @var RuleInterface $rule
+         */
+        try {
+            $rule = $this->ruleSet->getRule($data);
+
+            foreach ($rule->getHideFields() as $hideFieldId) {
+                $hideField = $this->getFormById($hideFieldId, $rootForm);
+                $this->replaceForm($hideField, array('original_options' => $hideField->getConfig()->getOptions()), true);
+            }
+
+            foreach ($rule->getShowFields() as $showFieldId) {
+                $showField = $this->getFormById($showFieldId, $rootForm);
+                $this->replaceForm($showField, array('original_options' => $showField->getConfig()->getOptions()), false);
+            }
+        } catch (NoRuleDefinedException $exception) {
+            # nothing to to if no rule is defined
+        }
     }
 
     /**
