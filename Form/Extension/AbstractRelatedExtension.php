@@ -79,7 +79,6 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
      * @param $fieldName
      * @author Martin Schindler
      * @return bool
-     * @deprecated 
      */
     private function childExists(FormInterface $child, $fieldName)
     {
