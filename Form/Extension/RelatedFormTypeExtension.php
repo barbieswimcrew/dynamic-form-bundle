@@ -40,17 +40,22 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
     {
         # add valid target data name to itself
         $view->vars['attr'][$this->attr['id']] = $view->vars['id'];
+
+        # add temp required data attribute if field is set required true
+        if($options['required'] === true){
+            $view->vars['attr'][$this->attr['isRequired']] = "required";
+        }
     }
 
     /**
-     * 
+     *
      * @param FormBuilderInterface $builder
      * @param array $options
      * @author Anton Zoffmann
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if($builder->hasOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES) and ($ruleset = $builder->getOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES)) instanceof RuleSetInterface){
+        if ($builder->hasOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES) and ($ruleset = $builder->getOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES)) instanceof RuleSetInterface) {
             $builder->addEventSubscriber(new ReconfigurationSubscriber($ruleset, $builder));
         }
     }
