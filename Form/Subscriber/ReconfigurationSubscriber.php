@@ -7,7 +7,6 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\WrongIdDefinitionException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\AbstractBaseRule;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
