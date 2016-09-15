@@ -107,8 +107,6 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         /** @var FormInterface $parentForm */
         $parentForm = $originForm->getParent();
 
-        $data = $event->getData();
-
         /**
          * THIS IS THE DECISION which rule should be effected
          * @var RuleInterface $rule
@@ -211,18 +209,8 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $merged['attr']['class'] = $this->handleHiddenClass($merged['attr'], $hidden);
         $merged['label_attr']['class'] = $this->handleHiddenClass($merged['label_attr'], $hidden);
 
-        # handle repeated type case
+        # seperated hidden flass handling for inner forms
         if (isset($originOptions['options'])) {
-
-            $merged['options'] = array_merge($originOptions['options'], $overrideOptions, array('auto_initialize' => false));
-
-            if (isset($overrideOptions['attr']['class'])) {
-                $merged['options']['attr']['class'] = $this->mergeAttrClasses($originOptions['options']['attr']['class'], $overrideOptions['attr']['class']);
-            }
-
-            if (isset($overrideOptions['label_attr']['class'])) {
-                $merged['options']['label_attr']['class'] = $this->mergeAttrClasses($originOptions['label_attr']['class'], $overrideOptions['label_attr']['class']);
-            }
 
             $merged['options']['attr']['class'] = $this->handleHiddenClass($merged['attr'], $hidden);
             $merged['options']['label_attr']['class'] = $this->handleHiddenClass($merged['label_attr'], $hidden);
