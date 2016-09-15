@@ -50,7 +50,7 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
         parent::finishView($view, $form, $options);
 
         /** @var RuleSet $ruleSet */
-        $ruleSet = $options['rules'];
+        $ruleSet = $options[self::OPTION_NAME_RULES]; 
 
         /** @var ChoiceView $choice */
         foreach ($view->vars['choices'] as $choice) {
