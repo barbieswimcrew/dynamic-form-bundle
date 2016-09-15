@@ -32,7 +32,8 @@
         idSelector: "data-sfhandler-id",
         targetsSelectorShow: "data-sfhandler-targets-show",
         targetsSelectorHide: "data-sfhandler-targets-hide",
-        hiddenClass: "hidden"
+        hiddenClass: "hidden",
+        hasErrorClass: "has-error"
     };
 
     /**
@@ -126,13 +127,17 @@
             $(fields).each(function () {
                 var $elementSelector = $("*[" + me.settings.idSelector + "*='" + this + "']");
                 var $labelSelector = $("label[for*='" + this + "']");
+                var $errorSelector = $elementSelector.parent("."+me.settings.hasErrorClass);
+
                 if (type === "show") {
                     me.showElement($elementSelector);
                     me.showElement($labelSelector);
+                    me.showElement($errorSelector);
                 }
                 if (type === "hide") {
                     me.hideElement($elementSelector);
                     me.hideElement($labelSelector);
+                    me.hideElement($errorSelector);
                 }
             });
         },
