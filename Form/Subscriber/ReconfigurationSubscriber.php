@@ -70,7 +70,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($hideFieldIds as $hideFieldId) {
 
-                $hideField = $this->getFormForIdRecursive($hideFieldId, $rootForm);
+                $hideField = $this->getFormById($hideFieldId, $rootForm);
 
                 $this->replaceForm(
                     $hideField,
@@ -88,7 +88,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $showFieldIds = $rule->getShowFields();
 
             foreach ($showFieldIds as $showFieldId) {
-                $showField = $this->getFormForIdRecursive($showFieldId, $rootForm);
+                $showField = $this->getFormById($showFieldId, $rootForm);
 
                 $this->replaceForm(
                     $showField,
@@ -132,41 +132,23 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     /**
      * checks if the property accessor string is valid for the given formBuilder
      * @param string $cssFormId
-     * @param FormInterface $form
-     * @param bool $firstRecursion
+     * @param FormInterface $child
      * @throws \Exception
      * @return FormInterface
      * @author Anton Zoffmann
      */
-    private function getFormForIdRecursive($cssFormId, FormInterface $form, $firstRecursion = true)
+    private function getFormById($cssFormId, FormInterface $child)
     {
-        if ($cssFormId !== "") {
+        $path = explode('_', $cssFormId);
 
-            $path = explode('_', $cssFormId);
-            $currentPath = array_shift($path);
-
-            # because the ids are fully qualified, in the first recursion we need to delete the root elements path
-            if ($firstRecursion) {
-                $currentPath = array_shift($path);
-            }
-
-            if ($form->has($currentPath)) {
-                try{
-                    return $this->getFormForIdRecursive(implode('_', $path), $form->get($currentPath), false);
-                } catch(WrongIdDefinitionException $exception){
-                    throw new WrongIdDefinitionException($cssFormId, 500, $exception);
-                }
+        foreach ($path as $name) {
+            if ($child->has($name)) {
+                $child = $child->get($name);
             } else {
-                throw new WrongIdDefinitionException($cssFormId);
+                throw new WrongIdDefinitionException($cssFormId, 500);
             }
-        } elseif ($cssFormId === "" and $firstRecursion === false) {
-            # here we are in our last recursion, so we return the injected form because its the one we want
-            return $form;
-
         }
-
-        # here we got to an unexpected state, throw an exception
-        throw new \Exception("Unexpected Recursion state, check your CSS-ID");
+        return $child;
     }
 
     /**
