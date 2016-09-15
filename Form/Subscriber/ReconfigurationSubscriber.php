@@ -1,10 +1,5 @@
 <?php
-/**
- * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 14.09.16
- * Time: 09:40
- */
+
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 

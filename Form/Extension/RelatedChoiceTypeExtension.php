@@ -1,10 +1,5 @@
 <?php
-/**
- * @author Martin Schindler
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 11.09.16
- * Time: 11:55
- */
+
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
