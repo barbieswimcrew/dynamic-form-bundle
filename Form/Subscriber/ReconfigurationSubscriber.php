@@ -53,8 +53,8 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         /** @var FormInterface $originForm */
         $originForm = $event->getForm();
-        /** @var FormInterface $rootForm */
-        $rootForm = $originForm->getRoot();
+        /** @var FormInterface $parentForm */
+        $parentForm = $originForm->getParent();
 
         $data = $event->getData();
 
@@ -70,7 +70,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($hideFieldIds as $hideFieldId) {
 
-                $hideField = $this->getFormById($hideFieldId, $rootForm);
+                $hideField = $this->getFormById($hideFieldId, $parentForm);
 
                 $this->replaceForm(
                     $hideField,
@@ -88,7 +88,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $showFieldIds = $rule->getShowFields();
 
             foreach ($showFieldIds as $showFieldId) {
-                $showField = $this->getFormById($showFieldId, $rootForm);
+                $showField = $this->getFormById($showFieldId, $parentForm);
 
                 $this->replaceForm(
                     $showField,
@@ -123,32 +123,45 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $mergedOptions = $this->mergeOptions($originForm->getConfig()->getOptions(), $overrideOptions, $hidden);
 
         $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
-
         $replacementForm = $replacementBuilder->getForm();
+
         $parent = $originForm->getParent();
-        $parent->offsetSet($originForm->getName(), $replacementForm);
+        $parent->offsetSet($replacementForm->getName(), $replacementForm);
     }
 
     /**
      * checks if the property accessor string is valid for the given formBuilder
      * @param string $cssFormId
-     * @param FormInterface $child
+     * @param FormInterface $parent
      * @throws \Exception
      * @return FormInterface
      * @author Anton Zoffmann
      */
-    private function getFormById($cssFormId, FormInterface $child)
+    private function getFormById($cssFormId, FormInterface $parent)
     {
         $path = explode('_', $cssFormId);
 
         foreach ($path as $name) {
-            if ($child->has($name)) {
-                $child = $child->get($name);
+            if ($parent->has($name)) {
+                $parent = $parent->get($name);
+            } elseif ($this->isFormNameCamelCased($cssFormId, $parent)) {
+                # todo check if element is camelCase, because then it is be seperated by an underscore...
             } else {
                 throw new WrongIdDefinitionException($cssFormId, 500);
             }
         }
-        return $child;
+
+        return $parent;
+    }
+
+    /**
+     * @param $cssId
+     * @param FormInterface $parent
+     * @author Anton Zoffmann
+     */
+    private function isFormNameCamelCased($cssId, FormInterface $parent)
+    {
+        $a = 1;
     }
 
     /**
@@ -163,9 +176,6 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         # array recursive because the options array contains other arrays to be merged (attr,...)
         $merged = array_merge($originOptions, $overrideOptions, array('auto_initialize' => false));
 
-        # auto_initialize needfully is false for non root elements
-//        $merged = array_merge($merged, array('auto_initialize' => false));
-
         # string concatenation for css classes
         if (isset($originOptions['attr']['class']) and isset($overrideOptions['attr']['class'])) {
             $merged['attr']['class'] = $this->mergeAttrClasses($originOptions['attr']['class'], $overrideOptions['attr']['class']);
@@ -178,6 +188,23 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         $merged['attr']['class'] = $this->handleHiddenClass($merged['attr'], $hidden);
         $merged['label_attr']['class'] = $this->handleHiddenClass($merged['label_attr'], $hidden);
+
+        # handle repeated type case
+        if (isset($originOptions['options'])) {
+
+            $merged['options'] = array_merge($originOptions['options'], $overrideOptions, array('auto_initialize' => false));
+
+            if (isset($overrideOptions['attr']['class'])) {
+                $merged['options']['attr']['class'] = $this->mergeAttrClasses($originOptions['options']['attr']['class'], $overrideOptions['attr']['class']);
+            }
+
+            if (isset($overrideOptions['label_attr']['class'])) {
+                $merged['options']['label_attr']['class'] = $this->mergeAttrClasses($originOptions['label_attr']['class'], $overrideOptions['label_attr']['class']);
+            }
+
+            $merged['options']['attr']['class'] = $this->handleHiddenClass($merged['attr'], $hidden);
+            $merged['options']['label_attr']['class'] = $this->handleHiddenClass($merged['label_attr'], $hidden);
+        }
 
         return $merged;
     }

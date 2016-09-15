@@ -59,10 +59,10 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
 
         /** @var ChoiceView $choice */
         foreach ($view->vars['choices'] as $choice) {
-            try{
+            try {
                 $rule = $ruleSet->getRule($choice->value);
                 $choice->attr = $this->replaceAttributes($choice, $rule);
-            } catch (NoRuleDefinedException $exception){
+            } catch (NoRuleDefinedException $exception) {
                 # nothing to do, just interrupt the workflow
             }
         }
@@ -70,10 +70,10 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
         # if expanded option is set true, append the data attributes to the underlying form child radio elements
         if ($options['expanded']) {
             foreach ($view as $childView) {
-                try{
+                try {
                     $rule = $ruleSet->getRule($childView->vars['value']);
                     $childView->vars['attr'] = $this->replaceAttributes($childView, $rule);
-                } catch (NoRuleDefinedException $exception){
+                } catch (NoRuleDefinedException $exception) {
                     # nothing to do, just interrupt the workflow
                 }
             }
