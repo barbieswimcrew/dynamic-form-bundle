@@ -9,9 +9,11 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\RuleSet;
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -42,26 +44,62 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
     }
 
     /**
-     * Adding data properties to the current form fields view html attributes
      * @param FormView $view
      * @param FormInterface $form
      * @param array $options
      * @author Martin Schindler
      */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function finishView(FormView $view, FormInterface $form, array $options)
     {
-        //@todo: Über die gesetzten Rules müssen hier noch die Targets an die View gebunden werden
+        parent::finishView($view, $form, $options);
 
-//        foreach ($options[self::OPTION_NAME_RULES] as $key => $row) {
-//            $fields = $this->getValidFields($form, $row);
-//
-//            if (count($fields) > 0) {
-//                # add target fields data
-//                $view->vars['attr'][self::ATTR_NAME_RELATED_TARGETS] = implode(',', $fields);
-//            }
-//        }
+        /** @var RuleSet $ruleSet */
+        $ruleSet = $options['rules'];
+
+        /** @var ChoiceView $choice */
+        foreach ($view->vars['choices'] as $choice) {
+            $rule = $ruleSet->getRule($choice->value);
+            if ($rule instanceof RuleInterface) {
+                $choice->attr = $this->replaceAttributes($choice, $rule);
+            }
+        }
+
+        # if expanded option is set true, append the data attributes to the underlying form child radio elements
+        if ($options['expanded']) {
+            foreach ($view as $childView) {
+
+                $rule = $ruleSet->getRule($childView->vars['value']);
+                if ($rule instanceof RuleInterface) {
+                    $childView->vars['attr'] = $this->replaceAttributes($childView, $rule);
+                }
+            }
+        }
 
     }
 
+    /**
+     * Helper method to replace the form field attributes array data
+     * @param $childView
+     * @param RuleInterface $rule
+     * @author Martin Schindler
+     * @return array
+     */
+    private function replaceAttributes($childView, RuleInterface $rule)
+    {
+
+        $additionalAttributes = array();
+        $showFields = $rule->getShowFields();
+        $hideFields = $rule->getHideFields();
+
+        if (count($showFields) > 0) {
+            $additionalAttributes[$this->attr['targetsShow']] = implode(',', $showFields);
+        }
+
+        if (count($hideFields) > 0) {
+            $additionalAttributes[$this->attr['targetsHide']] = implode(',', $hideFields);
+        }
+
+        return array_replace(isset($childView->attr) ? $childView->attr : array(), $additionalAttributes);
+    }
 
 }
