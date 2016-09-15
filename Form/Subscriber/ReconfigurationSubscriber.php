@@ -118,12 +118,12 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($rule->getHideFields() as $hideFieldId) {
                 $hideField = $this->getFormById($hideFieldId, $rootForm);
-                $this->replaceForm($hideField, array('original_options' => $hideField->getConfig()->getOptions()), true);
+                $this->replaceForm($hideField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $hideField->getConfig()->getOptions()), true);
             }
 
             foreach ($rule->getShowFields() as $showFieldId) {
                 $showField = $this->getFormById($showFieldId, $rootForm);
-                $this->replaceForm($showField, array('original_options' => $showField->getConfig()->getOptions()), false);
+                $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false);
             }
         } catch (NoRuleDefinedException $exception) {
             # nothing to to if no rule is defined
