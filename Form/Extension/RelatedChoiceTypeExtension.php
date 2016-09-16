@@ -36,7 +36,7 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $this->defineNewFieldOption($resolver, self::OPTION_NAME_RULES, null, array(RuleSetInterface::class));
+        $this->defineNewFieldOption($resolver, self::OPTION_NAME_RULES, null, array(RuleSetInterface::class, 'null'));
     }
 
     /**
@@ -51,6 +51,10 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
 
         /** @var RuleSet $ruleSet */
         $ruleSet = $options[self::OPTION_NAME_RULES];
+
+        if (!$ruleSet instanceof RuleSetInterface) {
+            return;
+        }
 
         /** @var ChoiceView $choice */
         foreach ($view->vars['choices'] as $choice) {
