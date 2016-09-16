@@ -30,6 +30,7 @@ class OptionsMergerService implements OptionsMergerInterface
     {
         $this->setDefaultOptionsMergers();
         # todo make OptionsMergers open for extension, eventually injectable customized OptionsMergers
+        # todo make hidden css class configurable
     }
 
     /**
@@ -75,6 +76,8 @@ class OptionsMergerService implements OptionsMergerInterface
     }
 
     /**
+     * a responsible OptionsMerger found by a fitting class will always be returns immediately, found by interface will be cached and
+     * returned when no other one can be found by a matching class. this is because we prioritize classes higher than interfaces.
      * @param FormInterface $form
      * @author Anton Zoffmann
      * @return OptionsMergerInterface
@@ -82,18 +85,22 @@ class OptionsMergerService implements OptionsMergerInterface
      */
     private function getResponsibleOptionsMerger(FormInterface $form)
     {
+        $optionsMergerForInterface = null;
+
         /** @var ResponsibilityInterface $optionsMerger */
         foreach ($this->optionsMergers as $optionsMerger) {
             if ($optionsMerger->isResponsibleForFormTypeClass($form)) {
                 return $optionsMerger;
             }
+
+            # if we find an merger by interface, cache it so all class possibilities get their chances to be found
+            if ($optionsMerger->isResponsibleForFormTypeInterface($form)) {
+                $optionsMergerForInterface = $optionsMerger;
+            }
         }
 
-        /** @var ResponsibilityInterface $optionsMerger */
-        foreach ($this->optionsMergers as $optionsMerger) {
-            if ($optionsMerger->isResponsibleForFormTypeInterface($form)) {
-                return $optionsMerger;
-            }
+        if($optionsMergerForInterface instanceof OptionsMergerInterface){
+            return $optionsMergerForInterface;
         }
 
         throw new OptionsMergerResponsibilityException(get_class($form));
