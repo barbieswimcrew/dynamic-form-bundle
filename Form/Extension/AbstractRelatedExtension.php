@@ -5,6 +5,7 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -12,23 +13,29 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class AbstractRelatedExtension extends AbstractTypeExtension
 {
 
-    /** @var boolean $strictMode */
-    protected $strictMode;
-
     /** @var array $attr */
     protected $attr;
 
     /**
      * AbstractRelatedExtension constructor.
-     * @param Container $container
+     * @param ContainerInterface $container
+     * @param array $config
      */
-    public function __construct(Container $container)
+    public function __construct(ContainerInterface $container, array $config = array())
     {
-        $this->strictMode = $container->getParameter('barbieswimcrew_symfony_form_rule_set.strict_mode');
-        $this->attr['id'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_id');
-        $this->attr['isRequired'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_is_required');
-        $this->attr['targetsShow'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_show');
-        $this->attr['targetsHide'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_hide');
+        # if at least one config parameter exists in container
+        if ($container->hasParameter('barbieswimcrew_symfony_form_rule_set.strict_mode')) {
+            $this->attr['strictMode'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.strict_mode');
+            $this->attr['id'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_id');
+            $this->attr['isRequired'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_is_required');
+            $this->attr['targetsShow'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_show');
+            $this->attr['targetsHide'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_hide');
+        }
+
+        # override attributes if custom config has been injected
+        foreach ($config as $key => $value) {
+            $this->attr[$key] = $value;
+        }
     }
 
     /**
