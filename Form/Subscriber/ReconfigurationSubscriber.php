@@ -6,6 +6,7 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\WrongIdDefinitionException;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\AbstractRelatedExtension;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
@@ -118,7 +119,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($rule->getShowFields() as $showFieldId) {
                 $showField = $this->getFormById($showFieldId, $parentForm);
-                $this->replaceForm($showField, array('original_options' => $showField->getConfig()->getOptions()), false);
+                $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false);
             }
 
         }
