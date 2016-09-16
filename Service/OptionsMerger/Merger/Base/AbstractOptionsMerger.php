@@ -12,6 +12,7 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\M
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Form\ResolvedFormTypeInterface;
 
 abstract class AbstractOptionsMerger implements OptionsMergerInterface, ResponsibilityInterface
@@ -35,16 +36,11 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
         foreach ($this->getApplicableClasses() as $applicableClass) {
 
             if(!class_exists($applicableClass)){
-                throw new ClassNotFoundException(sprintf("Class %s not found", $applicableClass), null);
+                throw new ClassNotFoundException(sprintf('Class "%s" not found', $applicableClass), null);
             }
 
-            $formTypeClassName = $this->getConfiguredFormTypeByForm($form);
-
-            if(!class_exists($applicableClass)){
-                throw new ClassNotFoundException(sprintf("Class %s not found", $formTypeClassName), null);
-            }
-
-            $formType = new $formTypeClassName();
+            /** @var FormTypeInterface $formType */
+            $formType = $this->getConfiguredFormTypeByForm($form);
 
             if ($formType instanceof $applicableClass) {
                 return true;
@@ -61,10 +57,11 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
      */
     public function isResponsibleForFormTypeInterface(FormInterface $form)
     {
-        $type = $this->getConfiguredFormTypeByForm($form);
+        /** @var FormTypeInterface $type */
+        $formType = $this->getConfiguredFormTypeByForm($form);
 
         $applicableInterface = $this->getApplicableInterface();
-        if ($type instanceof $applicableInterface) {
+        if ($formType instanceof $applicableInterface) {
             return true;
         }
 
@@ -89,13 +86,22 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
      * @param FormInterface $form
      * @author Anton Zoffmann
      * @return string
+     * @throws ClassNotFoundException
      */
     protected function getConfiguredFormTypeByForm(FormInterface $form)
     {
         if (($resolvedType = $form->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
-            return get_class($resolvedType->getInnerType());
+            $formTypeClassName = get_class($resolvedType->getInnerType());
         } else {
-            return get_class($form->getConfig()->getType());
+            $formTypeClassName = get_class($form->getConfig()->getType());
         }
+
+        if(!class_exists($formTypeClassName)){
+            throw new ClassNotFoundException(sprintf('Class "%s" not found', $formTypeClassName), null);
+        }
+
+        $formType = new $formTypeClassName();
+
+        return $formType;
     }
 }
