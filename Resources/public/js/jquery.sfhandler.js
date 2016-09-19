@@ -93,7 +93,7 @@
          */
         checkboxClickEvent: function () {
             var me = this;
-            var selector = "input[type='checkbox'][" + me.settings.targetsSelectorShow + "],*[" + me.settings.targetsSelectorHide + "]";
+            var selector = "input[type='checkbox'][" + me.settings.targetsSelectorShow + "],input[type='checkbox'][" + me.settings.targetsSelectorHide + "]";
 
             $(selector).on('click', document, function () {
                 var fields = $(this).attr(me.settings.targetsSelectorShow) || $(this).attr(me.settings.targetsSelectorHide);
