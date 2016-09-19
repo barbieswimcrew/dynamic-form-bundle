@@ -69,6 +69,9 @@
             // listening to radio click events
             me.radioClickEvent();
 
+            // listening to checkbox click events
+            me.checkboxClickEvent();
+
             // listening to selectbox change events
             me.selectChangeEvent();
         },
@@ -78,10 +81,27 @@
          */
         radioClickEvent: function () {
             var me = this;
-            var selector = "*[" + me.settings.targetsSelectorShow + "],*[" + me.settings.targetsSelectorHide + "]";
+            var selector = "input[type='radio'][" + me.settings.targetsSelectorShow + "],input[type='radio'][" + me.settings.targetsSelectorHide + "]";
 
             $(selector).on('click', document, function () {
                 me.execute(this);
+            });
+        },
+
+        /**
+         * Event handling method on checkbox input click event
+         */
+        checkboxClickEvent: function () {
+            var me = this;
+            var selector = "input[type='checkbox'][" + me.settings.targetsSelectorShow + "],*[" + me.settings.targetsSelectorHide + "]";
+
+            $(selector).on('click', document, function () {
+                var fields = $(this).attr(me.settings.targetsSelectorShow) || $(this).attr(me.settings.targetsSelectorHide);
+                if($(this).is(':checked')){
+                    me.toggleElements(fields, "show");
+                }else{
+                    me.toggleElements(fields, "hide");
+                }
             });
         },
 
