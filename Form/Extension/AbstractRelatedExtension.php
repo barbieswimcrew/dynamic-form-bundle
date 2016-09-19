@@ -4,6 +4,7 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
@@ -12,6 +13,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractRelatedExtension extends AbstractTypeExtension
 {
+
+    const OPTION_NAME_RULES = "rules";
 
     /** @var array $attr */
     protected $attr;
@@ -94,5 +97,30 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
             }
         }
         return true;
+    }
+
+    /**
+     * Helper method to replace the form field attributes array data
+     * @param $childView
+     * @param RuleInterface $rule
+     * @author Martin Schindler
+     * @return array
+     */
+    protected function replaceAttributes($childView, RuleInterface $rule)
+    {
+
+        $additionalAttributes = array();
+        $showFields = $rule->getShowFields();
+        $hideFields = $rule->getHideFields();
+
+        if (count($showFields) > 0) {
+            $additionalAttributes[$this->attr['targetsShow']] = implode(',', $showFields);
+        }
+
+        if (count($hideFields) > 0) {
+            $additionalAttributes[$this->attr['targetsHide']] = implode(',', $hideFields);
+        }
+
+        return array_replace(isset($childView->attr) ? $childView->attr : array(), $additionalAttributes);
     }
 }

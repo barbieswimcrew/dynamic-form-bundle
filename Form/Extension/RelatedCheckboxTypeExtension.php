@@ -1,36 +1,39 @@
 <?php
-
+/**
+ * @author Anton Zoffmann
+ * @copyright dasistweb GmbH (http://www.dasistweb.de)
+ * Date: 19.09.16
+ * Time: 12:24
+ */
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\RuleSet;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class RelatedChoiceTypeExtension extends AbstractRelatedExtension
+class RelatedCheckboxTypeExtension extends AbstractRelatedExtension
 {
-    
+
     /**
-     * Returns the name of the form field type being extended
-     * @author Martin Schindler
-     * @return string
+     * Returns the name of the type being extended.
+     * @return string The name of the type being extended
      */
     public function getExtendedType()
     {
-        return ChoiceType::class;
+        return CheckboxType::class;
     }
 
     /**
      * Registering the new form field options
      * @param OptionsResolver $resolver
-     * @author Martin Schindler
+     * @author Anton Zoffmann
      */
     public function configureOptions(OptionsResolver $resolver)
     {
@@ -41,7 +44,7 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
      * @param FormView $view
      * @param FormInterface $form
      * @param array $options
-     * @author Martin Schindler
+     * @author Anton Zoffmann
      */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
@@ -54,28 +57,14 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
             return;
         }
 
-        /** @var ChoiceView $choice */
-        foreach ($view->vars['choices'] as $choice) {
-            try {
-                $rule = $ruleSet->getRule($choice->value);
-                $choice->attr = $this->replaceAttributes($choice, $rule);
-            } catch (NoRuleDefinedException $exception) {
-                # nothing to do, just interrupt the workflow
-            }
-        }
-
         # if expanded option is set true, append the data attributes to the underlying form child radio elements
-        if ($options['expanded']) {
-            foreach ($view as $childView) {
-                try {
-                    $rule = $ruleSet->getRule($childView->vars['value']);
-                    $childView->vars['attr'] = $this->replaceAttributes($childView, $rule);
-                } catch (NoRuleDefinedException $exception) {
-                    # nothing to do, just interrupt the workflow
-                }
-            }
+        try {
+            $checked = ($view->vars['checked'] === true ? 1 : 0);
+            $rule = $ruleSet->getRule($checked);
+            $view->vars['attr'] = $this->replaceAttributes($view, $rule);
+        } catch (NoRuleDefinedException $exception) {
+            # nothing to do, just interrupt the workflow
         }
 
     }
-
 }

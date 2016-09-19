@@ -55,6 +55,11 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         $data = $event->getData();
 
+        // special type conversion for boolean data types (e.g. CheckboxType)
+        if(is_bool($data)){
+            $data = ($data === true ? 1 : 0);
+        }
+
         /**
          * THIS IS THE DESICION which rule should be effected
          * @var RuleInterface $rule
