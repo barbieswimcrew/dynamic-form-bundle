@@ -5,7 +5,6 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormInterface;
