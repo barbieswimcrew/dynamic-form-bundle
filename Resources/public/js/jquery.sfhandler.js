@@ -146,17 +146,23 @@
 
             $(fields).each(function () {
                 var $elementSelector = $("*[" + me.settings.idSelector + "*='" + this + "']");
-                var $labelSelector = $("label[for*='" + this + "']");
                 var $errorSelector = $elementSelector.parent("." + me.settings.hasErrorClass);
+                var $labelSelector = $("label[for*='" + this + "']");
+                var $parentLabelSelector = $elementSelector.parent('label');
+                var $prevLabelSelector = $elementSelector.prev('label');
 
                 if (type === "show") {
                     me.showElement($elementSelector);
                     me.showElement($labelSelector);
+                    me.showElement($parentLabelSelector);
+                    me.showElement($prevLabelSelector);
                     me.showElement($errorSelector);
                 }
                 if (type === "hide") {
                     me.hideElement($elementSelector);
                     me.hideElement($labelSelector);
+                    me.hideElement($parentLabelSelector);
+                    me.hideElement($prevLabelSelector);
                     me.hideElement($errorSelector);
                 }
             });
