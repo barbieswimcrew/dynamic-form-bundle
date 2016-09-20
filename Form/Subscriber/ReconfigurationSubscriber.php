@@ -5,9 +5,8 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\WrongIdDefinitionException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\AbstractRelatedExtension;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormAccessResolver\FormAccessResolver;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\OptionsMergerService;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
@@ -20,15 +19,21 @@ use Symfony\Component\Form\ResolvedFormTypeInterface;
 
 class ReconfigurationSubscriber implements EventSubscriberInterface
 {
+
     /** @var RuleSetInterface $ruleSet */
     private $ruleSet;
+
     /** @var FormBuilderInterface $builder */
     private $builder;
+
+    /** @var FormAccessResolver */
+    private $formAccessResolver;
 
     public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder)
     {
         $this->ruleSet = $ruleSet;
         $this->builder = $builder;
+        $this->formAccessResolver = new FormAccessResolver();
     }
 
     public static function getSubscribedEvents()
@@ -56,7 +61,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $data = $event->getData();
 
         // special type conversion for boolean data types (e.g. CheckboxType)
-        if(is_bool($data)){
+        if (is_bool($data)) {
             $data = ($data === true ? 1 : 0);
         }
 
@@ -72,7 +77,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($hideFieldIds as $hideFieldId) {
 
-                $hideField = $this->getFormById($hideFieldId, $parentForm);
+                $hideField = $this->formAccessResolver->getFormById($hideFieldId, $parentForm);
 
                 $this->replaceForm(
                     $hideField,
@@ -90,7 +95,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $showFieldIds = $rule->getShowFields();
 
             foreach ($showFieldIds as $showFieldId) {
-                $showField = $this->getFormById($showFieldId, $parentForm);
+                $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
                 $this->replaceForm($showField, $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS), false);
             }
         } catch (NoRuleDefinedException $exception) {
@@ -122,7 +127,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         foreach ($rules as $rule) {
 
             foreach ($rule->getShowFields() as $showFieldId) {
-                $showField = $this->getFormById($showFieldId, $parentForm);
+                $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
                 $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false);
             }
 
@@ -154,29 +159,6 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         $parent = $originForm->getParent();
         $parent->offsetSet($replacementForm->getName(), $replacementForm);
-    }
-
-    /**
-     * checks if the property accessor string is valid for the given formBuilder
-     * @param string $cssFormId
-     * @param FormInterface $parent
-     * @throws \Exception
-     * @return FormInterface
-     * @author Anton Zoffmann
-     */
-    private function getFormById($cssFormId, FormInterface $parent)
-    {
-        $path = explode('_', $cssFormId);
-
-        foreach ($path as $name) {
-            if ($parent->has($name)) {
-                $parent = $parent->get($name);
-            } else {
-                throw new WrongIdDefinitionException($cssFormId, 500);
-            }
-        }
-
-        return $parent;
     }
 
 }

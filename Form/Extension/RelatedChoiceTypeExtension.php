@@ -5,7 +5,6 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\RuleSet;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
@@ -16,7 +15,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RelatedChoiceTypeExtension extends AbstractRelatedExtension
 {
-    
+
     /**
      * Returns the name of the form field type being extended
      * @author Martin Schindler
@@ -58,7 +57,7 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
         foreach ($view->vars['choices'] as $choice) {
             try {
                 $rule = $ruleSet->getRule($choice->value);
-                $choice->attr = $this->replaceAttributes($choice, $rule);
+                $choice->attr = $this->replaceAttributes($choice, $form, $rule);
             } catch (NoRuleDefinedException $exception) {
                 # nothing to do, just interrupt the workflow
             }
@@ -69,7 +68,7 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
             foreach ($view as $childView) {
                 try {
                     $rule = $ruleSet->getRule($childView->vars['value']);
-                    $childView->vars['attr'] = $this->replaceAttributes($childView, $rule);
+                    $childView->vars['attr'] = $this->replaceAttributes($childView, $form, $rule);
                 } catch (NoRuleDefinedException $exception) {
                     # nothing to do, just interrupt the workflow
                 }

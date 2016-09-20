@@ -1,10 +1,5 @@
 <?php
-/**
- * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 19.09.16
- * Time: 12:24
- */
+
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
@@ -12,7 +7,6 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\RuleSet;
-use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -60,7 +54,7 @@ class RelatedCheckboxTypeExtension extends AbstractRelatedExtension
         # if expanded option is set true, append the data attributes to the underlying form child radio elements
         try {
             $rule = $ruleSet->getRule((int)$view->vars['checked']);
-            $view->vars['attr'] = $this->replaceAttributes($view, $rule);
+            $view->vars['attr'] = $this->replaceAttributes($view, $form, $rule);
         } catch (NoRuleDefinedException $exception) {
             # nothing to do, just interrupt the workflow
         }

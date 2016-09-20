@@ -4,10 +4,13 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormAccessResolver\FormAccessResolver;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractRelatedExtension extends AbstractTypeExtension
@@ -17,6 +20,9 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
 
     /** @var array $attr */
     protected $attr;
+
+    /** @var FormAccessResolver */
+    protected $formAccessResolver;
 
     /**
      * AbstractRelatedExtension constructor.
@@ -38,28 +44,8 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
         foreach ($config as $key => $value) {
             $this->attr[$key] = $value;
         }
-    }
 
-    /**
-     * This method validates if a field with $fieldName exists in the form
-     * and returns only existing fields
-     * @param FormInterface $form
-     * @param array $relatedFields
-     * @author Martin Schindler
-     * @return array
-     * @deprecated evaluate if we need this function because of handling in ReconfigurationSubscriber
-     */
-    protected function getValidFields(FormInterface $form, array $relatedFields)
-    {
-        $fields = array();
-        foreach ($relatedFields as $fieldName) {
-            $root = $form->getRoot();
-
-            if ($this->childExists($root, $fieldName) === true) {
-                $fields[] = $root->getName() . '_' . $fieldName;
-            }
-        }
-        return $fields;
+        $this->formAccessResolver = new FormAccessResolver();
     }
 
     /**
@@ -78,39 +64,27 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
     }
 
     /**
-     * Method to determine if a child exists in form
-     * @param FormInterface $child
-     * @param $fieldName
-     * @author Martin Schindler
-     * @return bool
-     */
-    private function childExists(FormInterface $child, $fieldName)
-    {
-        $path = explode('_', $fieldName);
-
-        foreach ($path as $name) {
-            if ($child->has($name)) {
-                $child = $child->get($name);
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Helper method to replace the form field attributes array data
-     * @param $childView
+     * @param FormView|ChoiceView $childView
+     * @param FormInterface $form
      * @param RuleInterface $rule
      * @author Martin Schindler
      * @return array
      */
-    protected function replaceAttributes($childView, RuleInterface $rule)
+    protected function replaceAttributes($childView, FormInterface $form, RuleInterface $rule)
     {
 
         $additionalAttributes = array();
         $showFields = $rule->getShowFields();
         $hideFields = $rule->getHideFields();
+
+        foreach ($showFields as &$showField) {
+            $showField = $this->formAccessResolver->getFullName($showField, $form);
+        }
+
+        foreach ($hideFields as &$hideField) {
+            $hideField = $this->formAccessResolver->getFullName($hideField, $form);
+        }
 
         if (count($showFields) > 0) {
             $additionalAttributes[$this->attr['targetsShow']] = implode(',', $showFields);
