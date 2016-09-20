@@ -1,10 +1,5 @@
 <?php
-/**
- * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 16.09.16
- * Time: 13:50
- */
+
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger;
 
@@ -12,7 +7,6 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\OptionsMerger\OptionsMergerResponsibilityException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base\ResponsibilityInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
 use Symfony\Component\Form\FormInterface;
@@ -80,14 +74,14 @@ class OptionsMergerService implements OptionsMergerInterface
      * returned when no other one can be found by a matching class. this is because we prioritize classes higher than interfaces.
      * @param FormInterface $form
      * @author Anton Zoffmann
-     * @return OptionsMergerInterface
+     * @return AbstractOptionsMerger
      * @throws OptionsMergerResponsibilityException
      */
     private function getResponsibleOptionsMerger(FormInterface $form)
     {
         $optionsMergerForInterface = null;
 
-        /** @var ResponsibilityInterface $optionsMerger */
+        /** @var AbstractOptionsMerger $optionsMerger */
         foreach ($this->optionsMergers as $optionsMerger) {
             if ($optionsMerger->isResponsibleForFormTypeClass($form)) {
                 return $optionsMerger;
@@ -99,7 +93,7 @@ class OptionsMergerService implements OptionsMergerInterface
             }
         }
 
-        if($optionsMergerForInterface instanceof OptionsMergerInterface){
+        if ($optionsMergerForInterface instanceof OptionsMergerInterface) {
             return $optionsMergerForInterface;
         }
 

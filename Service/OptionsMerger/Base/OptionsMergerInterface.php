@@ -4,11 +4,7 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\B
 
 use Symfony\Component\Form\FormInterface;
 
-/**
- * @author Anton Zoffmann
- * Date: 16.09.16
- * Time: 13:10
- */
+
 interface OptionsMergerInterface
 {
     /**

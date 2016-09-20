@@ -1,13 +1,7 @@
 <?php
-/**
- * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 16.09.16
- * Time: 13:45
- */
+
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger;
-
 
 
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;

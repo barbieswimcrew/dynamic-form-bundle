@@ -3,7 +3,7 @@
 
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormAccessResolver;
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\WrongIdDefinitionException;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException;
 use Symfony\Component\Form\FormInterface;
 
 class FormAccessResolver
@@ -18,7 +18,7 @@ class FormAccessResolver
      * @param FormInterface $form
      * @author Martin Schindler
      * @return FormInterface
-     * @throws WrongIdDefinitionException
+     * @throws UndefinedFormAccessorException
      */
     public function getFormById($ruleFieldAccessor, FormInterface $form)
     {
@@ -28,7 +28,7 @@ class FormAccessResolver
             if ($form->has($name)) {
                 $form = $form->get($name);
             } else {
-                throw new WrongIdDefinitionException($ruleFieldAccessor, 500);
+                throw new UndefinedFormAccessorException($ruleFieldAccessor, 500);
             }
         }
 

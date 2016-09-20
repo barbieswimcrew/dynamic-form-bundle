@@ -82,9 +82,9 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                 $this->replaceForm(
                     $hideField,
                     array(
-                        'required' => false,
                         'constraints' => array(),
                         'mapped' => false,
+                        'disabled' => true
                     ),
                     true
                 );

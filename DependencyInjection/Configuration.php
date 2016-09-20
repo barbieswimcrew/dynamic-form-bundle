@@ -34,9 +34,6 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('data_attr_targets_hide')
                     ->defaultValue('data-sfhandler-targets-hide')
                 ->end()
-                ->scalarNode('data_attr_is_required')
-                    ->defaultValue('data-sfhandler-required')
-                ->end()
             ->end();
 
         return $treeBuilder;

@@ -35,7 +35,6 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
         if ($container->hasParameter('barbieswimcrew_symfony_form_rule_set.strict_mode')) {
             $this->attr['strictMode'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.strict_mode');
             $this->attr['id'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_id');
-            $this->attr['isRequired'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_is_required');
             $this->attr['targetsShow'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_show');
             $this->attr['targetsHide'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_hide');
         }
@@ -74,7 +73,6 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
     protected function replaceAttributes($childView, FormInterface $form, RuleInterface $rule)
     {
 
-        $additionalAttributes = array();
         $showFields = $rule->getShowFields();
         $hideFields = $rule->getHideFields();
 
@@ -86,13 +84,9 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
             $hideField = $this->formAccessResolver->getFullName($hideField, $form);
         }
 
-        if (count($showFields) > 0) {
-            $additionalAttributes[$this->attr['targetsShow']] = implode(',', $showFields);
-        }
-
-        if (count($hideFields) > 0) {
-            $additionalAttributes[$this->attr['targetsHide']] = implode(',', $hideFields);
-        }
+        $additionalAttributes = array();
+        $additionalAttributes[$this->attr['targetsShow']] = implode(',', $showFields);
+        $additionalAttributes[$this->attr['targetsHide']] = implode(',', $hideFields);
 
         return array_replace(isset($childView->attr) ? $childView->attr : array(), $additionalAttributes);
     }

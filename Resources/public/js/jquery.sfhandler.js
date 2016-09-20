@@ -32,7 +32,6 @@
         idSelector: "data-sfhandler-id",
         targetsSelectorShow: "data-sfhandler-targets-show",
         targetsSelectorHide: "data-sfhandler-targets-hide",
-        isRequiredAttribute: "data-sfhandler-required",
         hiddenClass: "hidden",
         hasErrorClass: "has-error"
     };
@@ -152,13 +151,11 @@
 
                 if (type === "show") {
                     me.showElement($elementSelector);
-                    me.handleRequired($elementSelector, type);
                     me.showElement($labelSelector);
                     me.showElement($errorSelector);
                 }
                 if (type === "hide") {
                     me.hideElement($elementSelector);
-                    me.handleRequired($elementSelector, type);
                     me.hideElement($labelSelector);
                     me.hideElement($errorSelector);
                 }
@@ -173,6 +170,7 @@
         showElement: function ($element) {
             var me = this;
             $element.removeClass(me.settings.hiddenClass);
+            $element.removeAttr('disabled');
         },
 
         /**
@@ -184,24 +182,7 @@
             var me = this;
             if (!$element.hasClass(me.settings.hiddenClass)) {
                 $element.addClass(me.settings.hiddenClass);
-            }
-        },
-
-        /**
-         * Method to toggle required attribute for fields
-         * @param $element
-         * @param type
-         */
-        handleRequired: function ($element, type) {
-            var me = this;
-
-            if (type === "show") {
-                if ($element.attr(me.settings.isRequiredAttribute)) {
-                    $($element).attr('required', 'required');
-                }
-            }
-            if (type === "hide") {
-                $($element).removeAttr('required');
+                $element.attr('disabled','disabled');
             }
         }
     }
