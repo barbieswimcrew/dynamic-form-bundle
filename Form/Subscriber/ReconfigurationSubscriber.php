@@ -34,9 +34,9 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            FormEvents::PRE_SUBMIT => "reconfigureFormWithSumbittedData",
+            FormEvents::PRE_SUBMIT => "reconfigureFormWithSubmittedData",
             FormEvents::PRE_SET_DATA => "setOriginalOptions",
-            FormEvents::POST_SET_DATA => "reconfigureFormWithSumbittedData",
+            FormEvents::POST_SET_DATA => "reconfigureFormWithSubmittedData",
         );
     }
 
@@ -45,7 +45,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * @param FormEvent $event
      * @author Anton Zoffmann
      */
-    public function reconfigureFormWithSumbittedData(FormEvent $event)
+    public function reconfigureFormWithSubmittedData(FormEvent $event)
     {
 
         /** @var FormInterface $originForm */
@@ -61,7 +61,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         }
 
         /**
-         * THIS IS THE DESICION which rule should be effected
+         * THIS IS THE DECISION which rule should be effected
          * @var RuleInterface $rule
          */
         try {
@@ -171,8 +171,6 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         foreach ($path as $name) {
             if ($parent->has($name)) {
                 $parent = $parent->get($name);
-            } elseif ($this->isFormNameCamelCased($cssFormId, $parent)) {
-                # todo check if element is camelCase, because then it is be seperated by an underscore...
             } else {
                 throw new WrongIdDefinitionException($cssFormId, 500);
             }
@@ -180,16 +178,5 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         return $parent;
     }
-
-    /**
-     * @param $cssId
-     * @param FormInterface $parent
-     * @author Anton Zoffmann
-     */
-    private function isFormNameCamelCased($cssId, FormInterface $parent)
-    {
-        //todo implement
-    }
-
 
 }
