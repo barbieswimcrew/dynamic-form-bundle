@@ -59,8 +59,7 @@ class RelatedCheckboxTypeExtension extends AbstractRelatedExtension
 
         # if expanded option is set true, append the data attributes to the underlying form child radio elements
         try {
-            $checked = ($view->vars['checked'] === true ? 1 : 0);
-            $rule = $ruleSet->getRule($checked);
+            $rule = $ruleSet->getRule((int)$view->vars['checked']);
             $view->vars['attr'] = $this->replaceAttributes($view, $rule);
         } catch (NoRuleDefinedException $exception) {
             # nothing to do, just interrupt the workflow
