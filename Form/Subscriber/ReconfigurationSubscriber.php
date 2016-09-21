@@ -82,6 +82,11 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $data = ($data === true ? 1 : 0);
         }
 
+        // workaround for initially disabled fields
+        if(is_string($data) and empty($data)){
+            $data = 0;
+        }
+
         //todo array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
         //submitted data means selected checkboxes (equal to show fields)
         //not sumbitted data is equal to hide fields
