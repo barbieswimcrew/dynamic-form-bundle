@@ -17,6 +17,8 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
 
     const OPTION_NAME_ORIGINAL_OPTIONS = "original_options";
 
+    const OPTION_NAME_ALREADY_RECONFIGURED = "is_reconfigured";
+
     /**
      * Returns the name of the form field type being extended
      * @author Martin Schindler
@@ -35,6 +37,7 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
     public function configureOptions(OptionsResolver $resolver)
     {
         $this->defineNewFieldOption($resolver, self::OPTION_NAME_ORIGINAL_OPTIONS, array(), array('array'));
+        $this->defineNewFieldOption($resolver, self::OPTION_NAME_ALREADY_RECONFIGURED, false, array('boolean'));
     }
 
     /**

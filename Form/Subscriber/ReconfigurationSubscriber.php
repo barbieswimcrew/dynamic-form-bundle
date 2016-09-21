@@ -4,6 +4,7 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Reconfiguration\MultipleReconfigurationException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormAccessResolver\FormAccessResolver;
@@ -44,18 +45,29 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            FormEvents::PRE_SUBMIT => "reconfigureFormWithSubmittedData",
             FormEvents::PRE_SET_DATA => "setOriginalOptions",
-            FormEvents::POST_SET_DATA => "reconfigureFormWithSubmittedData",
+            FormEvents::POST_SET_DATA => "doPostSetDataReconfiguration",
+            FormEvents::PRE_SUBMIT => "doPreSubmitReconfiguration",
         );
+    }
+
+    public function doPreSubmitReconfiguration(FormEvent $event)
+    {
+        $this->reconfigureFormWithData($event, true);
+    }
+
+    public function doPostSetDataReconfiguration(FormEvent $event)
+    {
+        $this->reconfigureFormWithData($event, false);
     }
 
     /**
      * here we always get the finally built form because we subscribed the pre_submit event
      * @param FormEvent $event
+     * @param boolean $isAlreadyReconfigured
      * @author Anton Zoffmann
      */
-    public function reconfigureFormWithSubmittedData(FormEvent $event)
+    private function reconfigureFormWithData(FormEvent $event, $isAlreadyReconfigured)
     {
 
         /** @var FormInterface $originForm */
@@ -77,24 +89,24 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         # here we need to manually define the value for which the show OR hide algorithm should be executed
         $configuredFormType = $this->formPropertyHelper->getConfiguredFormTypeByForm($originForm);
-        if (new ChoiceType() instanceof $configuredFormType and $originForm->getConfig()->getOption('multiple') === true){
+        if (new ChoiceType() instanceof $configuredFormType and $originForm->getConfig()->getOption('multiple') === true) {
             //todo get values of each chekboxes configuration
             foreach ($this->collectConfiguredValuesForMultipleChoiceType($originForm) as $configuredValue) {
                 //todo reconfigure with hide
-                $this->reconfigure($configuredValue, $parentForm, true);
+                $this->reconfigure($configuredValue, $parentForm, true, $isAlreadyReconfigured);
 
             }
 
             foreach ($data as $value) {
                 //ATTENTION - VALUE IS THE FIELDS VALUE
                 //todo reconfigure with show
-                $this->reconfigure($value, $parentForm);
+                $this->reconfigure($value, $parentForm, false, $isAlreadyReconfigured);
 
             }
 
-        }else {
+        } else {
             # here it is ok to do reconfiguration with the injected rulesets show/hide fields for each rule
-            $this->reconfigure($data, $parentForm);
+            $this->reconfigure($data, $parentForm, false, $isAlreadyReconfigured);
 
         }
 
@@ -124,7 +136,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($rule->getShowFields() as $showFieldId) {
                 $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
-                $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false);
+                $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false, false);
             }
 
         }
@@ -136,10 +148,16 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * @param FormInterface $originForm
      * @param array $overrideOptions
      * @param boolean $hidden
+     * @param boolean $isAlreadyReconfigured
      * @author Anton Zoffmann
+     * @throws MultipleReconfigurationException
      */
-    private function replaceForm(FormInterface $originForm, array $overrideOptions, $hidden)
+    private function replaceForm(FormInterface $originForm, array $overrideOptions, $hidden, $isAlreadyReconfigured)
     {
+        if($originForm->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED) === true){
+            throw new MultipleReconfigurationException();
+        }
+
         if (($resolvedType = $originForm->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
             $type = get_class($resolvedType->getInnerType());
         } else {
@@ -149,6 +167,9 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         /** @var OptionsMergerService $optionsMergerService */
         $optionsMergerService = new OptionsMergerService();
         $mergedOptions = $optionsMergerService->getMergedOptions($originForm, $overrideOptions, $hidden);
+
+        # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
+        $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $isAlreadyReconfigured;
 
         $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
         $replacementForm = $replacementBuilder->getForm();
@@ -160,11 +181,13 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     /**
      * @param $data
      * @param FormInterface $parentForm
+     * @param boolean $hideFieldsOnly
+     * @param boolean $isAlreadyReconfigured
      * @author Anton Zoffmann
      * @throws \Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException
      * @todo different reconfiguration for ChoiceTypes with Multiple Option....
      */
-    private function reconfigure($data, FormInterface $parentForm, $hideFieldsOnly = false)
+    private function reconfigure($data, FormInterface $parentForm, $hideFieldsOnly = false, $isAlreadyReconfigured)
     {
         /**
          * THIS IS THE DECISION which rule should be effected
@@ -185,9 +208,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                     array(
                         'constraints' => array(),
                         'mapped' => false,
-                        'disabled' => true
+//                        'disabled' => true
                     ),
-                    true
+                    true,
+                    $isAlreadyReconfigured
                 );
 
             }
@@ -198,7 +222,12 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
                 foreach ($showFieldIds as $showFieldId) {
                     $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
-                    $this->replaceForm($showField, $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS), false);
+                    $this->replaceForm(
+                        $showField,
+                        $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS),
+                        false,
+                        $isAlreadyReconfigured
+                    );
                 }
             }
 
