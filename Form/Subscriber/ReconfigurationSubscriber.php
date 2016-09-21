@@ -7,10 +7,12 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormAccessResolver\FormAccessResolver;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormPropertyHelper\FormPropertyHelper;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\OptionsMergerService;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -28,12 +30,15 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
     /** @var FormAccessResolver */
     private $formAccessResolver;
+    /** @var FormPropertyHelper */
+    private $formPropertyHelper;
 
     public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder)
     {
         $this->ruleSet = $ruleSet;
         $this->builder = $builder;
         $this->formAccessResolver = new FormAccessResolver();
+        $this->formPropertyHelper = new FormPropertyHelper();
     }
 
     public static function getSubscribedEvents()
@@ -65,41 +70,32 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $data = ($data === true ? 1 : 0);
         }
 
-        /**
-         * THIS IS THE DECISION which rule should be effected
-         * @var RuleInterface $rule
-         */
-        try {
-            $rule = $this->ruleSet->getRule($data);
+        //todo array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
+        //submitted data means selected checkboxes (equal to show fields)
+        //not sumbitted data is equal to hide fields
+        //PROBLEM: EMPTY DATA IS PER DEFAULT NULL
 
-            /** @var array $hideFields */
-            $hideFieldIds = $rule->getHideFields();
-
-            foreach ($hideFieldIds as $hideFieldId) {
-
-                $hideField = $this->formAccessResolver->getFormById($hideFieldId, $parentForm);
-
-                $this->replaceForm(
-                    $hideField,
-                    array(
-                        'constraints' => array(),
-                        'mapped' => false,
-                        'disabled' => true
-                    ),
-                    true
-                );
+        # here we need to manually define the value for which the show OR hide algorithm should be executed
+        $configuredFormType = $this->formPropertyHelper->getConfiguredFormTypeByForm($originForm);
+        if (new ChoiceType() instanceof $configuredFormType and $originForm->getConfig()->getOption('multiple') === true){
+            //todo get values of each chekboxes configuration
+            foreach ($this->collectConfiguredValuesForMultipleChoiceType($originForm) as $configuredValue) {
+                //todo reconfigure with hide
+                $this->reconfigure($configuredValue, $parentForm, true);
 
             }
 
-            /** @var array $showFieldIds */
-            $showFieldIds = $rule->getShowFields();
+            foreach ($data as $value) {
+                //ATTENTION - VALUE IS THE FIELDS VALUE
+                //todo reconfigure with show
+                $this->reconfigure($value, $parentForm);
 
-            foreach ($showFieldIds as $showFieldId) {
-                $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
-                $this->replaceForm($showField, $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS), false);
             }
-        } catch (NoRuleDefinedException $exception) {
-            # nothing to to if no rule is defined
+
+        }else {
+            # here it is ok to do reconfiguration with the injected rulesets show/hide fields for each rule
+            $this->reconfigure($data, $parentForm);
+
         }
 
     }
@@ -159,6 +155,72 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         $parent = $originForm->getParent();
         $parent->offsetSet($replacementForm->getName(), $replacementForm);
+    }
+
+    /**
+     * @param $data
+     * @param FormInterface $parentForm
+     * @author Anton Zoffmann
+     * @throws \Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException
+     * @todo different reconfiguration for ChoiceTypes with Multiple Option....
+     */
+    private function reconfigure($data, FormInterface $parentForm, $hideFieldsOnly = false)
+    {
+        /**
+         * THIS IS THE DECISION which rule should be effected
+         * @var RuleInterface $rule
+         */
+        try {
+            $rule = $this->ruleSet->getRule($data);
+
+            /** @var array $hideFields */
+            $hideFieldIds = $rule->getHideFields();
+
+            foreach ($hideFieldIds as $hideFieldId) {
+
+                $hideField = $this->formAccessResolver->getFormById($hideFieldId, $parentForm);
+
+                $this->replaceForm(
+                    $hideField,
+                    array(
+                        'constraints' => array(),
+                        'mapped' => false,
+                        'disabled' => true
+                    ),
+                    true
+                );
+
+            }
+
+            if (!$hideFieldsOnly) {
+                /** @var array $showFieldIds */
+                $showFieldIds = $rule->getShowFields();
+
+                foreach ($showFieldIds as $showFieldId) {
+                    $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
+                    $this->replaceForm($showField, $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS), false);
+                }
+            }
+
+        } catch (NoRuleDefinedException $exception) {
+            # nothing to to if no rule is defined
+        }
+    }
+
+    /**
+     * @param FormInterface $originForm
+     * @author Anton Zoffmann
+     * @return array
+     */
+    private function collectConfiguredValuesForMultipleChoiceType(FormInterface $originForm)
+    {
+        $configuredValues = array();
+        /** @var FormInterface $child */
+        foreach ($originForm as $child) {
+            $configuredValues[] = $child->getConfig()->getOption('value');
+        }
+
+        return $configuredValues;
     }
 
 }

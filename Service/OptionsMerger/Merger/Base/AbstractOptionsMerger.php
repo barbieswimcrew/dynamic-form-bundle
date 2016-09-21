@@ -4,6 +4,7 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base;
 
 
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormPropertyHelper\FormPropertyHelper;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
 use Symfony\Component\Form\FormInterface;
@@ -85,18 +86,8 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
      */
     protected function getConfiguredFormTypeByForm(FormInterface $form)
     {
-        if (($resolvedType = $form->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
-            $formTypeClassName = get_class($resolvedType->getInnerType());
-        } else {
-            $formTypeClassName = get_class($form->getConfig()->getType());
-        }
+        $propertyHelper = new FormPropertyHelper();
 
-        if(!class_exists($formTypeClassName)){
-            throw new ClassNotFoundException(sprintf('Class "%s" not found', $formTypeClassName), null);
-        }
-
-        $formType = new $formTypeClassName();
-
-        return $formType;
+        return $propertyHelper->getConfiguredFormTypeByForm($form);
     }
 }
