@@ -53,39 +53,45 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
     public function listenToPreSetData(FormEvent $event)
     {
-        $event->stopPropagation();
-        //todo check if the form is valid for further handling
-        $this->setOriginalOptions($event);
+        /** @var FormInterface $toggledForm */
+        $subscribedForm = $event->getForm();
+
+        $this->setOriginalOptionsOnShowFields($subscribedForm);
     }
 
     public function listenToPostSetData(FormEvent $event)
     {
-        $event->stopPropagation();
-        //todo check if the form is valid for further handling
-        $this->reconfigureFormWithData($event, false);
+        /** @var FormInterface $subscribedForm */
+        $subscribedForm = $event->getForm();
+        /** @var mixed $setData */
+        $setData = $event->getData();
+
+        $this->reconfigureTargetFormsByData($subscribedForm, $setData, false);
     }
 
     public function listenToPreSubmit(FormEvent $event)
     {
-//        $event->stopPropagation();
-        $this->reconfigureFormWithData($event, false);
+        /** @var FormInterface $subscribedForm */
+        $subscribedForm = $event->getForm();
+        /** @var mixed $submittedData */
+        $submittedData = $event->getData();
+
+        $this->reconfigureTargetFormsByData($subscribedForm, $submittedData, true);
     }
 
     /**
      * here we always get the finally built form because we subscribed the pre_submit event
-     * @param FormEvent $event
+     * @param FormEvent|FormInterface $toggleForm
+     * @param mixed $data
      * @param boolean $isAlreadyReconfigured
+     * @throws \Symfony\Component\Debug\Exception\ClassNotFoundException
      * @author Anton Zoffmann
      */
-    private function reconfigureFormWithData(FormEvent $event, $isAlreadyReconfigured)
+    private function reconfigureTargetFormsByData(FormInterface $toggleForm, $data, $isAlreadyReconfigured)
     {
 
-        /** @var FormInterface $originForm */
-        $originForm = $event->getForm();
         /** @var FormInterface $parentForm */
-        $parentForm = $originForm->getParent();
-
-        $data = $event->getData();
+        $parentForm = $toggleForm->getParent();
 
         // special type conversion for boolean data types (e.g. CheckboxType)
         if (is_bool($data)) {
@@ -94,7 +100,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         // workaround for initially disabled fields
         if (is_string($data) and strlen($data) == 0) {
-            $data = $event->getForm()->getConfig()->getOption('data');
+            $data = $toggleForm->getConfig()->getOption('data');
             $isAlreadyReconfigured = true;
         }
 
@@ -104,10 +110,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         //PROBLEM: EMPTY DATA IS PER DEFAULT NULL
 
         # here we need to manually define the value for which the show OR hide algorithm should be executed
-        $configuredFormType = $this->formPropertyHelper->getConfiguredFormTypeByForm($originForm);
-        if (new ChoiceType() instanceof $configuredFormType and $originForm->getConfig()->getOption('multiple') === true) {
+        $configuredFormType = $this->formPropertyHelper->getConfiguredFormTypeByForm($toggleForm);
+        if (new ChoiceType() instanceof $configuredFormType and $toggleForm->getConfig()->getOption('multiple') === true) {
             //todo get values of each chekboxes configuration
-            foreach ($this->collectConfiguredValuesForMultipleChoiceType($originForm) as $configuredValue) {
+            foreach ($this->collectConfiguredValuesForMultipleChoiceType($toggleForm) as $configuredValue) {
                 //todo reconfigure with hide
                 $this->reconfigure($configuredValue, $parentForm, true, $isAlreadyReconfigured);
 
@@ -131,15 +137,13 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     /**
      * Copying the original field's options data and dumping them into original_options
      * to get constraints and other data after submitting
-     * @param FormEvent $event
+     * @param FormInterface $toggleForm
      * @author Martin Schindler
      */
-    public function setOriginalOptions(FormEvent $event)
+    public function setOriginalOptionsOnShowFields(FormInterface $toggleForm)
     {
-        /** @var FormInterface $originForm */
-        $originForm = $event->getForm();
         /** @var FormInterface $parentForm */
-        $parentForm = $originForm->getParent();
+        $parentForm = $toggleForm->getParent();
 
         /**
          * THIS IS THE DECISION which rule should be effected
@@ -155,9 +159,8 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
                 # in case of multiple toggles (that means multiple event subscribers) we do not want to override our options again, that will destroy already done reconfigurations
                 $originalOptions = $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS);
-                if(is_array($originalOptions) and empty($originalOptions)){
+                if (is_array($originalOptions) and empty($originalOptions)) {
                     # break or continue - with a break we suggest that all fields of this rule are already set
-                    //todo actually setOriginals is calls multiple times per request per field. this shall not happen because it overrides already set options
                     $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false, false);
                 }
 
@@ -200,10 +203,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $isAlreadyReconfigured;
 
             # setInheritData STOPS EVENT PROPAGATION DURING SAVEDATA()
-            $replacementBuilder = $this->builder
-                ->setInheritData(true)
-                ->setData($originForm->getData())
-                ->create($originForm->getName(), $type, $mergedOptions);
+            $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
 
             $replacementForm = $replacementBuilder->getForm();
 
@@ -256,6 +256,9 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             if (!$hideFieldsOnly) {
                 /** @var array $showFieldIds */
                 $showFieldIds = $rule->getShowFields();
+                # reconfiguration restriction shall only be applied if the parend form is disabled. when it is enabled,
+                # there is no reason to restrict 2nd level toggles and their targets
+                $isAlreadyReconfigured = false;
 
                 foreach ($showFieldIds as $showFieldId) {
                     $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
