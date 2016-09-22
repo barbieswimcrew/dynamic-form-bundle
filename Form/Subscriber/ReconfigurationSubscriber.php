@@ -53,7 +53,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
     public function doPreSubmitReconfiguration(FormEvent $event)
     {
-        $this->reconfigureFormWithData($event, true);
+        $this->reconfigureFormWithData($event, false);
     }
 
     public function doPostSetDataReconfiguration(FormEvent $event)
@@ -83,8 +83,9 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         }
 
         // workaround for initially disabled fields
-        if(is_string($data) and empty($data)){
-            $data = 0;
+        if (is_string($data) and strlen($data) == 0) {
+            $data = $event->getForm()->getConfig()->getOption('data');
+            $isAlreadyReconfigured = true;
         }
 
         //todo array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
@@ -141,6 +142,15 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
             foreach ($rule->getShowFields() as $showFieldId) {
                 $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
+
+                # in case of multiple toggles (that means multiple event subscribers) we do not want to override our options again, that will destroy already done reconfigurations
+                $originalOptions = $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS);
+                if(is_array($originalOptions) and !empty($originalOptions)){
+                    # break or continue - with a break we suggest that all fields of this rule are already set
+                    continue;
+                }
+
+                //todo actually setOriginals is calls multiple times per request per field. this shall not happen because it overrides already set options
                 $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false, false);
             }
 
@@ -159,28 +169,36 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      */
     private function replaceForm(FormInterface $originForm, array $overrideOptions, $hidden, $isAlreadyReconfigured)
     {
-        if($originForm->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED) === true){
-            throw new MultipleReconfigurationException();
+        # todo the information we need is not whether the form was already reconfigured but more if further reconfiguration is allowed
+        # todo e.g. we have a 2-hierarchy toggle and the "father" toggle is turned on - children should be allowed to do their own reconfiguration
+        # todo e.g. BUT if the parent toggle is off - the children SHALL NOT reconfigure any of the fields, already reconfigured from the parent toggle
+        try {
+            if ($originForm->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED) === true) {
+                throw new MultipleReconfigurationException();
+            }
+
+            if (($resolvedType = $originForm->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
+                $type = get_class($resolvedType->getInnerType());
+            } else {
+                $type = get_class($originForm->getConfig()->getType());
+            }
+
+            /** @var OptionsMergerService $optionsMergerService */
+            $optionsMergerService = new OptionsMergerService();
+            $mergedOptions = $optionsMergerService->getMergedOptions($originForm, $overrideOptions, $hidden);
+
+            # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
+            $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $isAlreadyReconfigured;
+
+            $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
+            $replacementForm = $replacementBuilder->getForm();
+
+            $parent = $originForm->getParent();
+            $parent->offsetSet($replacementForm->getName(), $replacementForm);
+
+        } catch (MultipleReconfigurationException $s) {
+            #nothing to do, eventually log but just break the reconfiguration workflow
         }
-
-        if (($resolvedType = $originForm->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
-            $type = get_class($resolvedType->getInnerType());
-        } else {
-            $type = get_class($originForm->getConfig()->getType());
-        }
-
-        /** @var OptionsMergerService $optionsMergerService */
-        $optionsMergerService = new OptionsMergerService();
-        $mergedOptions = $optionsMergerService->getMergedOptions($originForm, $overrideOptions, $hidden);
-
-        # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
-        $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $isAlreadyReconfigured;
-
-        $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
-        $replacementForm = $replacementBuilder->getForm();
-
-        $parent = $originForm->getParent();
-        $parent->offsetSet($replacementForm->getName(), $replacementForm);
     }
 
     /**
@@ -213,7 +231,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                     array(
                         'constraints' => array(),
                         'mapped' => false,
-//                        'disabled' => true
+                        'disabled' => true
                     ),
                     true,
                     $isAlreadyReconfigured
