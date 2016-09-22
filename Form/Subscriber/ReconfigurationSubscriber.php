@@ -45,19 +45,29 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            FormEvents::PRE_SET_DATA => "setOriginalOptions",
-            FormEvents::POST_SET_DATA => "doPostSetDataReconfiguration",
-            FormEvents::PRE_SUBMIT => "doPreSubmitReconfiguration",
+            FormEvents::PRE_SET_DATA => "listenToPreSetData",
+            FormEvents::POST_SET_DATA => "listenToPostSetData",
+            FormEvents::PRE_SUBMIT => "listenToPreSubmit",
         );
     }
 
-    public function doPreSubmitReconfiguration(FormEvent $event)
+    public function listenToPreSetData(FormEvent $event)
     {
+        $event->stopPropagation();
+        //todo check if the form is valid for further handling
+        $this->setOriginalOptions($event);
+    }
+
+    public function listenToPostSetData(FormEvent $event)
+    {
+        $event->stopPropagation();
+        //todo check if the form is valid for further handling
         $this->reconfigureFormWithData($event, false);
     }
 
-    public function doPostSetDataReconfiguration(FormEvent $event)
+    public function listenToPreSubmit(FormEvent $event)
     {
+//        $event->stopPropagation();
         $this->reconfigureFormWithData($event, false);
     }
 
@@ -145,13 +155,12 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
                 # in case of multiple toggles (that means multiple event subscribers) we do not want to override our options again, that will destroy already done reconfigurations
                 $originalOptions = $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS);
-                if(is_array($originalOptions) and !empty($originalOptions)){
+                if(is_array($originalOptions) and empty($originalOptions)){
                     # break or continue - with a break we suggest that all fields of this rule are already set
-                    continue;
+                    //todo actually setOriginals is calls multiple times per request per field. this shall not happen because it overrides already set options
+                    $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false, false);
                 }
 
-                //todo actually setOriginals is calls multiple times per request per field. this shall not happen because it overrides already set options
-                $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false, false);
             }
 
         }
@@ -190,7 +199,12 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
             $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $isAlreadyReconfigured;
 
-            $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
+            # setInheritData STOPS EVENT PROPAGATION DURING SAVEDATA()
+            $replacementBuilder = $this->builder
+                ->setInheritData(true)
+                ->setData($originForm->getData())
+                ->create($originForm->getName(), $type, $mergedOptions);
+
             $replacementForm = $replacementBuilder->getForm();
 
             $parent = $originForm->getParent();

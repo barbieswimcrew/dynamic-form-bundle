@@ -61,7 +61,14 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if ($builder->hasOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES) and ($ruleset = $builder->getOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES)) instanceof RuleSetInterface) {
+        # 1. add the subscriber only to forms with RuleSets
+        # 2. add the subscriber only to forms which are not already initalized with original_options
+        if ($builder->hasOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES) and
+            ($ruleset = $builder->getOption(RelatedChoiceTypeExtension::OPTION_NAME_RULES)) instanceof RuleSetInterface and
+            $builder->hasOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS) and
+            is_array($builder->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS)) and
+            empty($builder->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS))
+        ) {
             $builder->addEventSubscriber(new ReconfigurationSubscriber($ruleset, $builder));
         }
     }
