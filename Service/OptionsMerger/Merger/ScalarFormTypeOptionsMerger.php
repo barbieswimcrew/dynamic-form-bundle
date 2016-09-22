@@ -8,6 +8,11 @@ use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
+/**
+ * Class ScalarFormTypeOptionsMerger
+ * @author Anton Zoffmann
+ * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger
+ */
 class ScalarFormTypeOptionsMerger extends AbstractOptionsMerger
 {
     /**

@@ -11,7 +11,7 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Reconfigurat
 
 use Exception;
 
-class MultipleReconfigurationException extends \Exception
+class ReconfigurationNotAllowedException extends \Exception
 {
     public function __construct($message="", $code=0, Exception $previous=null)
     {

@@ -4,7 +4,7 @@
 namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Reconfiguration\MultipleReconfigurationException;
+use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Reconfiguration\ReconfigurationNotAllowedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormAccessResolver\FormAccessResolver;
@@ -20,6 +20,11 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\ResolvedFormTypeInterface;
 
+/**
+ * Class ReconfigurationSubscriber
+ * @author Anton Zoffmann
+ * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber
+ */
 class ReconfigurationSubscriber implements EventSubscriberInterface
 {
 
@@ -34,6 +39,11 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     /** @var FormPropertyHelper */
     private $formPropertyHelper;
 
+    /**
+     * ReconfigurationSubscriber constructor.
+     * @param RuleSetInterface $ruleSet
+     * @param FormBuilderInterface $builder
+     */
     public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder)
     {
         $this->ruleSet = $ruleSet;
@@ -42,6 +52,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $this->formPropertyHelper = new FormPropertyHelper();
     }
 
+    /**
+     * @author Anton Zoffmann
+     * @return array
+     */
     public static function getSubscribedEvents()
     {
         return array(
@@ -51,6 +65,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @param FormEvent $event
+     * @author Anton Zoffmann
+     */
     public function listenToPreSetData(FormEvent $event)
     {
         /** @var FormInterface $toggledForm */
@@ -59,6 +77,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $this->setOriginalOptionsOnShowFields($subscribedForm);
     }
 
+    /**
+     * @param FormEvent $event
+     * @author Anton Zoffmann
+     */
     public function listenToPostSetData(FormEvent $event)
     {
         /** @var FormInterface $subscribedForm */
@@ -69,6 +91,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $this->reconfigureTargetFormsByData($subscribedForm, $setData, false);
     }
 
+    /**
+     * @param FormEvent $event
+     * @author Anton Zoffmann
+     */
     public function listenToPreSubmit(FormEvent $event)
     {
         /** @var FormInterface $subscribedForm */
@@ -83,11 +109,11 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * here we always get the finally built form because we subscribed the pre_submit event
      * @param FormEvent|FormInterface $toggleForm
      * @param mixed $data
-     * @param boolean $isAlreadyReconfigured
+     * @param boolean $blockFurtherReconfigurations
      * @throws \Symfony\Component\Debug\Exception\ClassNotFoundException
      * @author Anton Zoffmann
      */
-    private function reconfigureTargetFormsByData(FormInterface $toggleForm, $data, $isAlreadyReconfigured)
+    private function reconfigureTargetFormsByData(FormInterface $toggleForm, $data, $blockFurtherReconfigurations)
     {
 
         /** @var FormInterface $parentForm */
@@ -101,10 +127,9 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         // workaround for initially disabled fields
         if (is_string($data) and strlen($data) == 0) {
             $data = $toggleForm->getConfig()->getOption('data');
-            $isAlreadyReconfigured = true;
         }
 
-        //todo array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
+        //array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
         //submitted data means selected checkboxes (equal to show fields)
         //not sumbitted data is equal to hide fields
         //PROBLEM: EMPTY DATA IS PER DEFAULT NULL
@@ -112,23 +137,22 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         # here we need to manually define the value for which the show OR hide algorithm should be executed
         $configuredFormType = $this->formPropertyHelper->getConfiguredFormTypeByForm($toggleForm);
         if (new ChoiceType() instanceof $configuredFormType and $toggleForm->getConfig()->getOption('multiple') === true) {
-            //todo get values of each chekboxes configuration
+            # get values of each chekboxes configuration
             foreach ($this->collectConfiguredValuesForMultipleChoiceType($toggleForm) as $configuredValue) {
-                //todo reconfigure with hide
-                $this->reconfigure($configuredValue, $parentForm, true, $isAlreadyReconfigured);
+
+                $this->reconfigure($configuredValue, $parentForm, true, $blockFurtherReconfigurations);
 
             }
 
             foreach ($data as $value) {
                 //ATTENTION - VALUE IS THE FIELDS VALUE
-                //todo reconfigure with show
-                $this->reconfigure($value, $parentForm, false, $isAlreadyReconfigured);
+                $this->reconfigure($value, $parentForm, false, $blockFurtherReconfigurations);
 
             }
 
         } else {
             # here it is ok to do reconfiguration with the injected rulesets show/hide fields for each rule
-            $this->reconfigure($data, $parentForm, false, $isAlreadyReconfigured);
+            $this->reconfigure($data, $parentForm, false, $blockFurtherReconfigurations);
 
         }
 
@@ -171,60 +195,14 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * sets a new configured form to the parent of the original form
-     * @param FormInterface $originForm
-     * @param array $overrideOptions
-     * @param boolean $hidden
-     * @param boolean $isAlreadyReconfigured
-     * @author Anton Zoffmann
-     * @throws MultipleReconfigurationException
-     */
-    private function replaceForm(FormInterface $originForm, array $overrideOptions, $hidden, $isAlreadyReconfigured)
-    {
-        # todo the information we need is not whether the form was already reconfigured but more if further reconfiguration is allowed
-        # todo e.g. we have a 2-hierarchy toggle and the "father" toggle is turned on - children should be allowed to do their own reconfiguration
-        # todo e.g. BUT if the parent toggle is off - the children SHALL NOT reconfigure any of the fields, already reconfigured from the parent toggle
-        try {
-            if ($originForm->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED) === true) {
-                throw new MultipleReconfigurationException();
-            }
-
-            if (($resolvedType = $originForm->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
-                $type = get_class($resolvedType->getInnerType());
-            } else {
-                $type = get_class($originForm->getConfig()->getType());
-            }
-
-            /** @var OptionsMergerService $optionsMergerService */
-            $optionsMergerService = new OptionsMergerService();
-            $mergedOptions = $optionsMergerService->getMergedOptions($originForm, $overrideOptions, $hidden);
-
-            # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
-            $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $isAlreadyReconfigured;
-
-            # setInheritData STOPS EVENT PROPAGATION DURING SAVEDATA()
-            $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
-
-            $replacementForm = $replacementBuilder->getForm();
-
-            $parent = $originForm->getParent();
-            $parent->offsetSet($replacementForm->getName(), $replacementForm);
-
-        } catch (MultipleReconfigurationException $s) {
-            #nothing to do, eventually log but just break the reconfiguration workflow
-        }
-    }
-
-    /**
      * @param $data
      * @param FormInterface $parentForm
      * @param boolean $hideFieldsOnly
-     * @param boolean $isAlreadyReconfigured
+     * @param boolean $blockFurtherReconfigurations
      * @author Anton Zoffmann
      * @throws \Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException
-     * @todo different reconfiguration for ChoiceTypes with Multiple Option....
      */
-    private function reconfigure($data, FormInterface $parentForm, $hideFieldsOnly = false, $isAlreadyReconfigured)
+    private function reconfigure($data, FormInterface $parentForm, $hideFieldsOnly = false, $blockFurtherReconfigurations)
     {
         /**
          * THIS IS THE DECISION which rule should be effected
@@ -248,7 +226,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                         'disabled' => true
                     ),
                     true,
-                    $isAlreadyReconfigured
+                    $blockFurtherReconfigurations
                 );
 
             }
@@ -258,7 +236,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                 $showFieldIds = $rule->getShowFields();
                 # reconfiguration restriction shall only be applied if the parend form is disabled. when it is enabled,
                 # there is no reason to restrict 2nd level toggles and their targets
-                $isAlreadyReconfigured = false;
+                $blockFurtherReconfigurations = false;
 
                 foreach ($showFieldIds as $showFieldId) {
                     $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
@@ -266,13 +244,58 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                         $showField,
                         $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS),
                         false,
-                        $isAlreadyReconfigured
+                        $blockFurtherReconfigurations
                     );
                 }
             }
 
         } catch (NoRuleDefinedException $exception) {
             # nothing to to if no rule is defined
+        }
+    }
+
+    /**
+     * sets a new configured form to the parent of the original form
+     * @param FormInterface $originForm
+     * @param array $overrideOptions
+     * @param boolean $hidden
+     * @param boolean $blockFurtherReconfigurations
+     * @author Anton Zoffmann
+     * @throws ReconfigurationNotAllowedException
+     */
+    private function replaceForm(FormInterface $originForm, array $overrideOptions, $hidden, $blockFurtherReconfigurations)
+    {
+        # the information we need is not whether the form was already reconfigured but more if further reconfiguration is allowed
+        # e.g. we have a 2-hierarchy toggle and the "father" toggle is turned on - children should be allowed to do their own reconfiguration
+        # e.g. BUT if the parent toggle is off - the children SHALL NOT reconfigure any of the fields, already reconfigured from the parent toggle
+        try {
+            if ($originForm->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED) === true) {
+                throw new ReconfigurationNotAllowedException();
+            }
+
+            if (($resolvedType = $originForm->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
+                $type = get_class($resolvedType->getInnerType());
+            } else {
+                $type = get_class($originForm->getConfig()->getType());
+            }
+
+            /** @var OptionsMergerService $optionsMergerService */
+            $optionsMergerService = new OptionsMergerService();
+            $mergedOptions = $optionsMergerService->getMergedOptions($originForm, $overrideOptions, $hidden);
+
+            # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
+            $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $blockFurtherReconfigurations;
+
+            # setInheritData STOPS EVENT PROPAGATION DURING SAVEDATA()
+            $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
+
+            $replacementForm = $replacementBuilder->getForm();
+
+            $parent = $originForm->getParent();
+            $parent->offsetSet($replacementForm->getName(), $replacementForm);
+
+        } catch (ReconfigurationNotAllowedException $s) {
+            #nothing to do, eventually log but just break the reconfiguration workflow
         }
     }
 

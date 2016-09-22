@@ -11,6 +11,11 @@ use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\
 use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
 use Symfony\Component\Form\FormInterface;
 
+/**
+ * Class OptionsMergerService
+ * @author Anton Zoffmann
+ * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger
+ */
 class OptionsMergerService implements OptionsMergerInterface
 {
 

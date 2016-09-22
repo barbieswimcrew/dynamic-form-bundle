@@ -7,6 +7,11 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\M
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormInterface;
 
+/**
+ * Class RepeatedTypeOptionsMerger
+ * @author Anton Zoffmann
+ * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger
+ */
 class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
 {
     public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden)

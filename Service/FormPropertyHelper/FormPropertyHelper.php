@@ -29,7 +29,7 @@ class FormPropertyHelper
             $formTypeClassName = get_class($form->getConfig()->getType());
         }
 
-        if(!class_exists($formTypeClassName)){
+        if (!class_exists($formTypeClassName)) {
             throw new ClassNotFoundException(sprintf('Class "%s" not found', $formTypeClassName), null);
         }
 

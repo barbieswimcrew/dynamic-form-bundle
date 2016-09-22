@@ -9,8 +9,12 @@ use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Base\Op
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
-use Symfony\Component\Form\ResolvedFormTypeInterface;
 
+/**
+ * Class AbstractOptionsMerger
+ * @author Anton Zoffmann
+ * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base
+ */
 abstract class AbstractOptionsMerger implements OptionsMergerInterface, ResponsibilityInterface
 {
 
@@ -31,7 +35,7 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
 
         foreach ($this->getApplicableClasses() as $applicableClass) {
 
-            if(!class_exists($applicableClass)){
+            if (!class_exists($applicableClass)) {
                 throw new ClassNotFoundException(sprintf('Class "%s" not found', $applicableClass), null);
             }
 

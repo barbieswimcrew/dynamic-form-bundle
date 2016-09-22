@@ -6,6 +6,11 @@ namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\M
 
 use Symfony\Component\Form\FormInterface;
 
+/**
+ * Interface ResponsibilityInterface
+ * @author Anton Zoffmann
+ * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base
+ */
 interface ResponsibilityInterface
 {
     /**
