@@ -73,7 +73,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
     {
         /** @var FormInterface $toggledForm */
         $subscribedForm = $event->getForm();
-
+        $event->stopPropagation();
         $this->setOriginalOptionsOnShowFields($subscribedForm);
     }
 
@@ -87,7 +87,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $subscribedForm = $event->getForm();
         /** @var mixed $setData */
         $setData = $event->getData();
-
+        $event->stopPropagation();
         $this->reconfigureTargetFormsByData($subscribedForm, $setData, false);
     }
 
@@ -138,15 +138,27 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         $configuredFormType = $this->formPropertyHelper->getConfiguredFormTypeByForm($toggleForm);
         if (new ChoiceType() instanceof $configuredFormType and $toggleForm->getConfig()->getOption('multiple') === true) {
             # get values of each chekboxes configuration
-            foreach ($this->collectConfiguredValuesForMultipleChoiceType($toggleForm) as $configuredValue) {
 
-                $this->reconfigure($configuredValue, $parentForm, true, $blockFurtherReconfigurations);
+            foreach ($this->collectConfiguredValuesForMultipleChoiceType($toggleForm) as $configuredValue) {
+                # actually we block reconfiguration in presubmit....
+                # BUT here we got a second step to do...
+                # todo just exclude the data values form the default fields to hide
+                if(in_array($configuredValue, $data)){
+
+                    $this->disableFields($configuredValue, $parentForm, false);
+
+                } else{
+
+                    $this->disableFields($configuredValue, $parentForm,$blockFurtherReconfigurations);
+
+                }
 
             }
 
             foreach ($data as $value) {
+
                 //ATTENTION - VALUE IS THE FIELDS VALUE
-                $this->reconfigure($value, $parentForm, false, $blockFurtherReconfigurations);
+                $this->enableFields($value, $parentForm);
 
             }
 
@@ -204,11 +216,61 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      */
     private function reconfigure($data, FormInterface $parentForm, $hideFieldsOnly = false, $blockFurtherReconfigurations)
     {
-        /**
-         * THIS IS THE DECISION which rule should be effected
-         * @var RuleInterface $rule
-         */
+
+        $this->disableFields($data, $parentForm, $blockFurtherReconfigurations);
+
+        if (!$hideFieldsOnly) {
+
+            $this->enableFields($data, $parentForm);
+
+        }
+
+
+    }
+
+    /**
+     * @param $data
+     * @param FormInterface $parentForm
+     * @author Anton Zoffmann
+     * @throws \Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException
+     */
+    private function enableFields($data, FormInterface $parentForm)
+    {
         try {
+            /**
+             * THIS IS THE DECISION which rule should be effected
+             * @var RuleInterface $rule
+             */
+            $rule = $this->ruleSet->getRule($data);
+
+            /** @var array $showFieldIds */
+            $showFieldIds = $rule->getShowFields();
+            # reconfiguration restriction shall only be applied if the parend form is disabled. when it is enabled,
+            # there is no reason to restrict 2nd level toggles and their targets
+            $blockFurtherReconfigurations = false;
+
+            foreach ($showFieldIds as $showFieldId) {
+                $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
+                $this->replaceForm(
+                    $showField,
+                    $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS),
+                    false,
+                    $blockFurtherReconfigurations
+                );
+            }
+
+        } catch (NoRuleDefinedException $exception) {
+            # nothing to to if no rule is defined
+        }
+    }
+
+    private function disableFields($data, FormInterface $parentForm, $blockFurtherReconfigurations)
+    {
+        try {
+            /**
+             * THIS IS THE DECISION which rule should be effected
+             * @var RuleInterface $rule
+             */
             $rule = $this->ruleSet->getRule($data);
 
             /** @var array $hideFields */
@@ -229,24 +291,6 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                     $blockFurtherReconfigurations
                 );
 
-            }
-
-            if (!$hideFieldsOnly) {
-                /** @var array $showFieldIds */
-                $showFieldIds = $rule->getShowFields();
-                # reconfiguration restriction shall only be applied if the parend form is disabled. when it is enabled,
-                # there is no reason to restrict 2nd level toggles and their targets
-                $blockFurtherReconfigurations = false;
-
-                foreach ($showFieldIds as $showFieldId) {
-                    $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
-                    $this->replaceForm(
-                        $showField,
-                        $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS),
-                        false,
-                        $blockFurtherReconfigurations
-                    );
-                }
             }
 
         } catch (NoRuleDefinedException $exception) {
