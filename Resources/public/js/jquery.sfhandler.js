@@ -96,9 +96,9 @@
 
             $(selector).on('click', document, function () {
                 var fields = $(this).attr(me.settings.targetsSelectorShow) || $(this).attr(me.settings.targetsSelectorHide);
-                if($(this).is(':checked')){
+                if ($(this).is(':checked')) {
                     me.toggleElements(fields, "show");
-                }else{
+                } else {
                     me.toggleElements(fields, "hide");
                 }
             });
@@ -153,17 +153,27 @@
 
                 if (type === "show") {
                     me.showElement($elementSelector);
+                    $elementSelector.trigger('show');
                     me.showElement($labelSelector);
+                    $labelSelector.trigger('show');
                     me.showElement($parentLabelSelector);
+                    $parentLabelSelector.trigger('show');
                     me.showElement($prevLabelSelector);
+                    $prevLabelSelector.trigger('show');
                     me.showElement($errorSelector);
+                    $errorSelector.trigger('show');
                 }
                 if (type === "hide") {
                     me.hideElement($elementSelector);
+                    $elementSelector.trigger('hide');
                     me.hideElement($labelSelector);
+                    $labelSelector.trigger('hide');
                     me.hideElement($parentLabelSelector);
+                    $parentLabelSelector.trigger('hide');
                     me.hideElement($prevLabelSelector);
+                    $prevLabelSelector.trigger('hide');
                     me.hideElement($errorSelector);
+                    $errorSelector.trigger('hide');
                 }
             });
         },
@@ -188,7 +198,7 @@
             var me = this;
             if (!$element.hasClass(me.settings.hiddenClass)) {
                 $element.addClass(me.settings.hiddenClass);
-                $element.attr('disabled','disabled');
+                $element.attr('disabled', 'disabled');
             }
         }
     }
