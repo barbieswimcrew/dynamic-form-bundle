@@ -124,10 +124,17 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $data = ($data === true ? 1 : 0);
         }
 
+        // if a checkbox returns null, this means disabled so set it to 0
+        if($data === null){
+            $data = 0;
+        }
+
         // workaround for initially disabled fields
+        // todo should this happen on pre submit reconfiguration or just on post-set-data???
         if (is_string($data) and strlen($data) == 0) {
             $data = $toggleForm->getConfig()->getOption('data');
         }
+
 
         //array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
         //submitted data means selected checkboxes (equal to show fields)
@@ -158,13 +165,21 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             foreach ($data as $value) {
 
                 //ATTENTION - VALUE IS THE FIELDS VALUE
-                $this->enableFields($value, $parentForm);
+                $this->enableFields($value, $parentForm);   //todo check if here is a reset or a real enabling required
 
             }
 
         } else {
+            //todo
+            $this->disableFields($data, $parentForm, $blockFurtherReconfigurations);
+
+//            if (!false) {     //this was like it was wrapped into the reconfigure method
+
+                $this->enableFields($data, $parentForm);
+
+//            }
             # here it is ok to do reconfiguration with the injected rulesets show/hide fields for each rule
-            $this->reconfigure($data, $parentForm, false, $blockFurtherReconfigurations);
+//            $this->reconfigure($data, $parentForm, false, $blockFurtherReconfigurations);   //todo extract desicion whether to enable or disable to this place, remove reconfigure method
 
         }
 
@@ -233,6 +248,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * @param FormInterface $parentForm
      * @author Anton Zoffmann
      * @throws \Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException
+     * @todo this method does an reset, enabling looks different to this code... rename the method and create a new one
      */
     private function enableFields($data, FormInterface $parentForm)
     {
