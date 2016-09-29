@@ -125,13 +125,13 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         }
 
         // if a checkbox returns null, this means disabled so set it to 0
-        if($data === null){
-            $data = 0;
-        }
+//        if($data === null){
+//            $data = 0;
+//        }
 
         // workaround for initially disabled fields
         // todo should this happen on pre submit reconfiguration or just on post-set-data???
-        if (is_string($data) and strlen($data) == 0) {
+        if (is_string($data) and strlen($data) == 0 or $data === null) {
             $data = $toggleForm->getConfig()->getOption('data');
         }
 

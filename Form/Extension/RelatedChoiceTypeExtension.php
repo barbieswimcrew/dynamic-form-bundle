@@ -53,11 +53,15 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
             return;
         }
 
+        //set the data-sfhandler-id to our choice-types label too
+        $view->vars['label_attr'][$this->attr['id']] = $view->vars['attr'][$this->attr['id']];
+
         /** @var ChoiceView $choice */
         foreach ($view->vars['choices'] as $choice) {
             try {
                 $rule = $ruleSet->getRule($choice->value);
                 $choice->attr = $this->replaceAttributes($choice, $form, $rule);
+                $choice->attr[$this->attr['id']] = $view->vars['attr'][$this->attr['id']];
             } catch (NoRuleDefinedException $exception) {
                 # nothing to do, just interrupt the workflow
             }
@@ -69,6 +73,8 @@ class RelatedChoiceTypeExtension extends AbstractRelatedExtension
                 try {
                     $rule = $ruleSet->getRule($childView->vars['value']);
                     $childView->vars['attr'] = $this->replaceAttributes($childView, $form, $rule);
+                    $childView->vars['attr'][$this->attr['id']] = $view->vars['attr'][$this->attr['id']];
+                    $childView->vars['label_attr'][$this->attr['id']] = $view->vars['attr'][$this->attr['id']];
                 } catch (NoRuleDefinedException $exception) {
                     # nothing to do, just interrupt the workflow
                 }
