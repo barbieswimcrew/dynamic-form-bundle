@@ -10,7 +10,6 @@ use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
  * Date: 12.12.16
  * Time: 19:29
  */

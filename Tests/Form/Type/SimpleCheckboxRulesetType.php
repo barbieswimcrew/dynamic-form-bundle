@@ -1,7 +1,6 @@
 <?php
 /**
  * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
  * Date: 12.12.16
  * Time: 19:39
  */
