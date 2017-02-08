@@ -115,7 +115,7 @@ class SimpleChoiceRulesetTypeTest extends RelatedTypeTestCase
     protected function getTypeExtensions()
     {
         /** @var \PHPUnit_Framework_MockObject_MockObject|Container $containerMock */
-        $containerMock = $this->getMock(Container::class);
+        $containerMock = $this->createMock(Container::class);
         $containerMock->method('hasParameter')->willReturn(false);
 
         return array(
