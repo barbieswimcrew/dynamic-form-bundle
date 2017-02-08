@@ -90,17 +90,18 @@ class OptionsMergerService implements OptionsMergerInterface
                 return $optionsMerger;
             }
 
-            # if we find an merger by interface, cache it so all class possibilities get their chances to be found
+            # if we find a merger by interface, cache it so all class possibilities get their chances to be found
             if ($optionsMerger->isResponsibleForFormTypeInterface($form)) {
                 $optionsMergerForInterface = $optionsMerger;
             }
         }
 
-        if ($optionsMergerForInterface instanceof OptionsMergerInterface) {
-            return $optionsMergerForInterface;
+        if (!$optionsMergerForInterface instanceof OptionsMergerInterface) {
+            throw new NoOptionsMergerResponsibleException(get_class($form));
         }
 
-        throw new NoOptionsMergerResponsibleException(get_class($form));
+        return $optionsMergerForInterface;
+
     }
 
 }
