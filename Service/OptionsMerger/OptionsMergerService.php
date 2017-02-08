@@ -1,20 +1,20 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\OptionsMerger\OptionsMergerResponsibilityException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger\OptionsMergerResponsibilityException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
 use Symfony\Component\Form\FormInterface;
 
 /**
  * Class OptionsMergerService
  * @author Anton Zoffmann
- * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger
  */
 class OptionsMergerService implements OptionsMergerInterface
 {

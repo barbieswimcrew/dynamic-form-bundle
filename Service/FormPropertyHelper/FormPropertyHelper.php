@@ -1,12 +1,6 @@
 <?php
-/**
- * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 21.09.16
- * Time: 12:00
- */
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormPropertyHelper;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper;
 
 
 use Symfony\Component\Debug\Exception\ClassNotFoundException;

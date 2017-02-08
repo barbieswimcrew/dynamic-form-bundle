@@ -1,15 +1,11 @@
 <?php
-/**
- * @author Anton Zoffmann
- * Date: 17.12.16
- * Time: 14:22
- */
-
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Tests\Form\Type;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Rule;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\RuleSet;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type;
+
+
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Rule;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\RuleSet;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;

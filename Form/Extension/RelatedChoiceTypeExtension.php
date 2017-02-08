@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\RuleSet;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\RuleSet;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;

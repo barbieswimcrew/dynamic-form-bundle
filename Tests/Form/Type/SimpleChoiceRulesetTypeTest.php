@@ -1,16 +1,12 @@
 <?php
-/**
- * @author Anton Zoffmann
- * Date: 17.12.16
- * Time: 14:23
- */
-
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Tests\Form\Type;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedChoiceTypeExtension;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Tests\Form\Type\Base\RelatedTypeTestCase;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type;
+
+
+use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedChoiceTypeExtension;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base\RelatedTypeTestCase;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Form;
 

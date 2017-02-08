@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules;
 
 
 class UndefinedFormAccessorException extends \Exception

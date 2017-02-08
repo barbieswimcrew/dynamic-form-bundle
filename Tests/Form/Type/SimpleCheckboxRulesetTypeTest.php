@@ -1,10 +1,10 @@
 <?php
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Tests\Form\Type;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type;
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedCheckboxTypeExtension;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Tests\Form\Type\Base\RelatedTypeTestCase;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedCheckboxTypeExtension;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base\RelatedTypeTestCase;
 use Symfony\Component\DependencyInjection\Container;
 
 

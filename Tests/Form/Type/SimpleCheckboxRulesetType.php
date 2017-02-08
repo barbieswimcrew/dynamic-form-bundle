@@ -1,17 +1,11 @@
 <?php
-/**
- * @author Anton Zoffmann
- * Date: 12.12.16
- * Time: 19:39
- */
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Tests\Form\Type;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\CheckboxRuleSet;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\CheckboxRuleSet;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;

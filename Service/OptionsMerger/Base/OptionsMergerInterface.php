@@ -1,6 +1,6 @@
 <?php
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Base;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base;
 
 use Symfony\Component\Form\FormInterface;
 

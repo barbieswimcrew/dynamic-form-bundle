@@ -1,16 +1,16 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
 use Symfony\Component\Form\FormInterface;
 
 /**
  * Class CollectionTypeOptionsMerger
  * @author Anton Zoffmann
- * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger
  */
 class CollectionTypeOptionsMerger extends AbstractOptionsMerger
 {

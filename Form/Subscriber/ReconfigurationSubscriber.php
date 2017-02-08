@@ -1,17 +1,17 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Form\Subscriber;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Reconfiguration\ReconfigurationNotAllowedException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension\RelatedFormTypeExtension;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormAccessResolver\FormAccessResolver;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\FormPropertyHelper\FormPropertyHelper;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\OptionsMergerService;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleInterface;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Reconfiguration\ReconfigurationNotAllowedException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormAccessResolver\FormAccessResolver;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleInterface;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -23,7 +23,7 @@ use Symfony\Component\Form\ResolvedFormTypeInterface;
 /**
  * Class ReconfigurationSubscriber
  * @author Anton Zoffmann
- * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Form\Subscriber
  */
 class ReconfigurationSubscriber implements EventSubscriberInterface
 {
@@ -150,13 +150,13 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
                 # actually we block reconfiguration in presubmit....
                 # BUT here we got a second step to do...
                 # todo just exclude the data values form the default fields to hide
-                if(in_array($configuredValue, $data)){
+                if (in_array($configuredValue, $data)) {
 
                     $this->disableFields($configuredValue, $parentForm, false);
 
-                } else{
+                } else {
 
-                    $this->disableFields($configuredValue, $parentForm,$blockFurtherReconfigurations);
+                    $this->disableFields($configuredValue, $parentForm, $blockFurtherReconfigurations);
 
                 }
 
@@ -175,7 +175,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
 //            if (!false) {     //this was like it was wrapped into the reconfigure method
 
-                $this->enableFields($data, $parentForm);
+            $this->enableFields($data, $parentForm);
 
 //            }
             # here it is ok to do reconfiguration with the injected rulesets show/hide fields for each rule
@@ -227,7 +227,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * @param boolean $hideFieldsOnly
      * @param boolean $blockFurtherReconfigurations
      * @author Anton Zoffmann
-     * @throws \Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException
+     * @throws \Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\UndefinedFormAccessorException
      */
     private function reconfigure($data, FormInterface $parentForm, $hideFieldsOnly = false, $blockFurtherReconfigurations)
     {
@@ -247,7 +247,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * @param $data
      * @param FormInterface $parentForm
      * @author Anton Zoffmann
-     * @throws \Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\UndefinedFormAccessorException
+     * @throws \Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\UndefinedFormAccessorException
      * @todo this method does an reset, enabling looks different to this code... rename the method and create a new one
      */
     private function enableFields($data, FormInterface $parentForm)

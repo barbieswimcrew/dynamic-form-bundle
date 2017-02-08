@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base;
 
 
 interface RuleInterface

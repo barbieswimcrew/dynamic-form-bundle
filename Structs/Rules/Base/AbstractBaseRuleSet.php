@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\DuplicateRuleValueException;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\DuplicateRuleValueException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
 
 abstract class AbstractBaseRuleSet implements RuleSetInterface
 {

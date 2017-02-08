@@ -1,11 +1,7 @@
 <?php
-/**
- * @author Anton Zoffmann
- * Date: 14.12.16
- * Time: 18:43
- */
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Tests\Form\Type\Base;
+
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base;
 
 
 use Symfony\Component\EventDispatcher\EventDispatcher;

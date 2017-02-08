@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base;
 
 
 use Symfony\Component\Form\FormInterface;
@@ -9,7 +9,7 @@ use Symfony\Component\Form\FormInterface;
 /**
  * Interface ResponsibilityInterface
  * @author Anton Zoffmann
- * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger\Base
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base
  */
 interface ResponsibilityInterface
 {

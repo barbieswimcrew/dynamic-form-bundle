@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\Rules\NoRuleDefinedException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
 
 interface RuleSetInterface
 {

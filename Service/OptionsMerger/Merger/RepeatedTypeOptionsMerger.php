@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger;
 
 
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -10,7 +10,7 @@ use Symfony\Component\Form\FormInterface;
 /**
  * Class RepeatedTypeOptionsMerger
  * @author Anton Zoffmann
- * @package Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Service\OptionsMerger\Merger
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger
  */
 class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
 {

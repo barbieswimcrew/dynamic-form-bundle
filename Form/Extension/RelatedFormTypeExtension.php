@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Extension;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Form\Subscriber\ReconfigurationSubscriber;
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\RuleSetInterface;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Subscriber\ReconfigurationSubscriber;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;

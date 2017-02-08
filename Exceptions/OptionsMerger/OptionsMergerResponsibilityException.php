@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Exceptions\OptionsMerger;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger;
 
 
 class OptionsMergerResponsibilityException extends \Exception

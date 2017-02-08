@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules;
+namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules;
 
 
-use Barbieswimcrew\Bundle\SymfonyFormRuleSetBundle\Structs\Rules\Base\AbstractBaseRule;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\AbstractBaseRule;
 
 class Rule extends AbstractBaseRule
 {
