@@ -3,14 +3,14 @@
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules;
 
 /**
- * Class DuplicateRuleValueException
+ * Class MoreThanOneRuleForValueException
  * @author Martin Schindler
  * @package Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules
  */
-class DuplicateRuleValueException extends \Exception
+class MoreThanOneRuleForValueException extends \Exception
 {
     /**
-     * DuplicateRuleValueException constructor.
+     * MoreThanOneRuleForValueException constructor.
      * @param string $value
      * @param int $code
      * @param \Exception|null $previous

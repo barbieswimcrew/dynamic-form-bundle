@@ -2,7 +2,7 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base;
 
-use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\DuplicateRuleValueException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\MoreThanOneRuleForValueException;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
 
 /**
@@ -32,13 +32,13 @@ abstract class AbstractBaseRuleSet implements RuleSetInterface
     /**
      * @param RuleInterface $rule
      * @author Anton Zoffmann
-     * @throws DuplicateRuleValueException
+     * @throws MoreThanOneRuleForValueException
      */
     private function addRule(RuleInterface $rule)
     {
 
         if (array_key_exists($rule->getValue(), $this->rules)) {
-            throw new DuplicateRuleValueException($rule->getValue());
+            throw new MoreThanOneRuleForValueException($rule->getValue());
         }
 
         $this->rules[$rule->getValue()] = $rule;
