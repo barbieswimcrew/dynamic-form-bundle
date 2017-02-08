@@ -2,7 +2,7 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger;
 
-use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger\OptionsMergerResponsibilityException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger\NoOptionsMergerResponsibleException;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
@@ -36,7 +36,7 @@ class OptionsMergerService implements OptionsMergerInterface
      * @param bool $hidden
      * @author Anton Zoffmann
      * @return array
-     * @throws OptionsMergerResponsibilityException
+     * @throws NoOptionsMergerResponsibleException
      */
     public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden)
     {
@@ -78,7 +78,7 @@ class OptionsMergerService implements OptionsMergerInterface
      * @param FormInterface $form
      * @author Anton Zoffmann
      * @return AbstractOptionsMerger
-     * @throws OptionsMergerResponsibilityException
+     * @throws NoOptionsMergerResponsibleException
      */
     private function getResponsibleOptionsMerger(FormInterface $form)
     {
@@ -100,7 +100,7 @@ class OptionsMergerService implements OptionsMergerInterface
             return $optionsMergerForInterface;
         }
 
-        throw new OptionsMergerResponsibilityException(get_class($form));
+        throw new NoOptionsMergerResponsibleException(get_class($form));
     }
 
 }

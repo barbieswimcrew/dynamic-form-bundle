@@ -3,14 +3,14 @@
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger;
 
 /**
- * Class OptionsMergerResponsibilityException
+ * Class NoOptionsMergerResponsibleException
  * @author Martin Schindler
  * @package Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger
  */
-class OptionsMergerResponsibilityException extends \Exception
+class NoOptionsMergerResponsibleException extends \Exception
 {
     /**
-     * OptionsMergerResponsibilityException constructor.
+     * NoOptionsMergerResponsibleException constructor.
      * @param string $className
      * @param int $code
      * @param null $previous
