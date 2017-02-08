@@ -24,6 +24,20 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
     abstract public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden);
 
     /**
+     * returns a fully qualified namespace of the interface
+     * @author Anton Zoffmann
+     * @return string
+     */
+    abstract protected function getApplicableInterface();
+
+    /**
+     * returns an array of strings from the fully qualified namespaces of applicable classes
+     * @author Anton Zoffmann
+     * @return array
+     */
+    abstract protected function getApplicableClasses();
+
+    /**
      * @inheritdoc
      * @param FormInterface $form
      * @author Anton Zoffmann
@@ -31,16 +45,15 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
     public function isResponsibleForFormTypeClass(FormInterface $form)
     {
 
-        foreach ($this->getApplicableClasses() as $applicableClass) {
+        $applicableClasses = (is_array($this->getApplicableClasses())) ? $this->getApplicableClasses() : array();
+
+        foreach ($applicableClasses as $applicableClass) {
 
             if (!class_exists($applicableClass)) {
                 throw new ClassNotFoundException(sprintf('Class "%s" not found', $applicableClass), null);
             }
 
-            /** @var FormTypeInterface $formType */
-            $formType = $this->getConfiguredFormTypeByForm($form);
-
-            if ($formType instanceof $applicableClass) {
+            if ($this->getConfiguredFormTypeByForm($form) instanceof $applicableClass) {
                 return true;
             }
         }
@@ -65,20 +78,6 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
 
         return false;
     }
-
-    /**
-     * returns a fully qualified namespace of the interface
-     * @author Anton Zoffmann
-     * @return string
-     */
-    abstract protected function getApplicableInterface();
-
-    /**
-     * returns an array of strings from the fully qualified namespaces of applicable classes
-     * @author Anton Zoffmann
-     * @return array
-     */
-    abstract protected function getApplicableClasses();
 
     /**
      * @param FormInterface $form
