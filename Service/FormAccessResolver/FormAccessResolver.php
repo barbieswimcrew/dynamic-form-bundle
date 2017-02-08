@@ -26,7 +26,7 @@ class FormAccessResolver
      */
     public function getFormById($ruleFieldAccessor, FormInterface $form)
     {
-        $path = explode(self::PATH_DIVIDER, $ruleFieldAccessor);
+        $path = array_filter(explode(self::PATH_DIVIDER, $ruleFieldAccessor));
 
         foreach ($path as $name) {
             if ($form->has($name)) {
