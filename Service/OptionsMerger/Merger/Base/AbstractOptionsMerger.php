@@ -68,10 +68,10 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
      */
     public function isResponsibleForFormTypeInterface(FormInterface $form)
     {
-        /** @var FormTypeInterface $type */
+        /** @var FormTypeInterface $formType */
         $formType = $this->getConfiguredFormTypeByForm($form);
 
-        $applicableInterface = $this->getApplicableInterface();
+        $applicableInterface = (string)$this->getApplicableInterface();
         if ($formType instanceof $applicableInterface) {
             return true;
         }
@@ -82,7 +82,7 @@ abstract class AbstractOptionsMerger implements OptionsMergerInterface, Responsi
     /**
      * @param FormInterface $form
      * @author Anton Zoffmann
-     * @return string
+     * @return FormTypeInterface
      * @throws ClassNotFoundException
      */
     protected function getConfiguredFormTypeByForm(FormInterface $form)

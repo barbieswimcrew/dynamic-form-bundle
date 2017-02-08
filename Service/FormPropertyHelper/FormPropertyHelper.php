@@ -4,6 +4,7 @@ namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper;
 
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Form\ResolvedFormTypeInterface;
 
 /**
@@ -16,7 +17,7 @@ class FormPropertyHelper
     /**
      * @param FormInterface $form
      * @author Anton Zoffmann
-     * @return string
+     * @return FormTypeInterface
      * @throws ClassNotFoundException
      */
     public function getConfiguredFormTypeByForm(FormInterface $form)
