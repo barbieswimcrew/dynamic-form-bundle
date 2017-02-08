@@ -357,7 +357,10 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
             $replacementForm = $replacementBuilder->getForm();
 
             $parent = $originForm->getParent();
-            $parent->offsetSet($replacementForm->getName(), $replacementForm);
+
+            if($parent instanceof FormInterface){
+                $parent->offsetSet($replacementForm->getName(), $replacementForm);
+            }
 
         } catch (ReconfigurationNotAllowedException $s) {
             #nothing to do, eventually log but just break the reconfiguration workflow
