@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormAccessResolver\FormAccessResolver;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleInterface;
@@ -13,9 +11,17 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class AbstractRelatedExtension
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension
+ */
 abstract class AbstractRelatedExtension extends AbstractTypeExtension
 {
 
+    /**
+     *
+     */
     const OPTION_NAME_RULES = "rules";
 
     /** @var array $attr */

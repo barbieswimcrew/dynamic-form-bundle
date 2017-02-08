@@ -1,12 +1,15 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\DuplicateRuleValueException;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
 
+/**
+ * Class AbstractBaseRuleSet
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base
+ */
 abstract class AbstractBaseRuleSet implements RuleSetInterface
 {
     /**
@@ -49,7 +52,7 @@ abstract class AbstractBaseRuleSet implements RuleSetInterface
      */
     public function getRule($value)
     {
-        if(!array_key_exists($value, $this->rules)){
+        if (!array_key_exists($value, $this->rules)) {
             throw new NoRuleDefinedException($value);
         }
 

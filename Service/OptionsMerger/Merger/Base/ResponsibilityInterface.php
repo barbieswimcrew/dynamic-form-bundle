@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base;
-
 
 use Symfony\Component\Form\FormInterface;
 

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger;
-
 
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormInterface;
@@ -14,6 +12,13 @@ use Symfony\Component\Form\FormInterface;
  */
 class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
 {
+    /**
+     * @param FormInterface $form
+     * @param array $overrideOptions
+     * @param bool $hidden
+     * @author Martin Schindler
+     * @return array
+     */
     public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden)
     {
         /** @var array $originOptions */
@@ -31,6 +36,10 @@ class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
         return $merged;
     }
 
+    /**
+     * @author Martin Schindler
+     * @return array
+     */
     protected function getApplicableClasses()
     {
         return array(
@@ -38,6 +47,10 @@ class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
         );
     }
 
+    /**
+     * @author Martin Schindler
+     * @return string
+     */
     protected function getApplicableInterface()
     {
         return "";

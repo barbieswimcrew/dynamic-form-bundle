@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base;
-
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
@@ -11,6 +9,11 @@ use Symfony\Component\Form\Forms;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\Validator\Validation;
 
+/**
+ * Class RelatedTypeTestCase
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base
+ */
 abstract class RelatedTypeTestCase extends TypeTestCase
 {
 

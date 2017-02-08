@@ -4,7 +4,11 @@ namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base;
 
 use Symfony\Component\Form\FormInterface;
 
-
+/**
+ * Interface OptionsMergerInterface
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base
+ */
 interface OptionsMergerInterface
 {
     /**

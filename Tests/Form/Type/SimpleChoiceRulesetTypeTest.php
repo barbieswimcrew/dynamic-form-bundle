@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedChoiceTypeExtension;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
@@ -10,6 +8,11 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base\RelatedTypeTest
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Form;
 
+/**
+ * Class SimpleChoiceRulesetTypeTest
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type
+ */
 class SimpleChoiceRulesetTypeTest extends RelatedTypeTestCase
 {
 
@@ -129,9 +132,10 @@ class SimpleChoiceRulesetTypeTest extends RelatedTypeTestCase
      * @param Form $form
      * @author Anton Zoffmann
      */
-    private function dumpFormErrors(Form $form){
+    private function dumpFormErrors(Form $form)
+    {
         $iter = $form->getErrors(true);
-        while(($error = $iter->current()) !== false){
+        while (($error = $iter->current()) !== false) {
             var_dump($error->getMessage());
             $iter->next();
         }

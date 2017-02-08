@@ -7,7 +7,6 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtens
 use Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base\RelatedTypeTestCase;
 use Symfony\Component\DependencyInjection\Container;
 
-
 /**
  * @author Anton Zoffmann
  * Date: 12.12.16

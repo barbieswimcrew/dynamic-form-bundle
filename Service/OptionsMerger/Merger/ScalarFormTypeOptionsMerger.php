@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
 use Symfony\Component\Form\FormInterface;
@@ -20,6 +18,13 @@ class ScalarFormTypeOptionsMerger extends AbstractOptionsMerger
      */
     const CSS_HIDDEN_CLASS = "hidden";
 
+    /**
+     * @param FormInterface $form
+     * @param array $overrideOptions
+     * @param bool $hidden
+     * @author Martin Schindler
+     * @return array
+     */
     public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden)
     {
         /** @var array $originOptions */

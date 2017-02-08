@@ -1,9 +1,12 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base;
 
-
+/**
+ * Interface RuleInterface
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base
+ */
 interface RuleInterface
 {
     /**

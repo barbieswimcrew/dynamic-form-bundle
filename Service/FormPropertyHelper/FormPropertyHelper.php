@@ -2,11 +2,15 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper;
 
-
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\ResolvedFormTypeInterface;
 
+/**
+ * Class FormPropertyHelper
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper
+ */
 class FormPropertyHelper
 {
     /**

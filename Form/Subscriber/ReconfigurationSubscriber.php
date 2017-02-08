@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Form\Subscriber;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Reconfiguration\ReconfigurationNotAllowedException;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
@@ -36,6 +34,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
     /** @var FormAccessResolver */
     private $formAccessResolver;
+
     /** @var FormPropertyHelper */
     private $formPropertyHelper;
 
@@ -280,6 +279,12 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param $data
+     * @param FormInterface $parentForm
+     * @param $blockFurtherReconfigurations
+     * @author Martin Schindler
+     */
     private function disableFields($data, FormInterface $parentForm, $blockFurtherReconfigurations)
     {
         try {

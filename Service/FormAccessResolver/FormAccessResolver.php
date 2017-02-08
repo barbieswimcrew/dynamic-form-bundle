@@ -1,11 +1,15 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormAccessResolver;
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\UndefinedFormAccessorException;
 use Symfony\Component\Form\FormInterface;
 
+/**
+ * Class FormAccessResolver
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormAccessResolver
+ */
 class FormAccessResolver
 {
 

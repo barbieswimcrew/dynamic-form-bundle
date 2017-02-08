@@ -1,11 +1,14 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
 
+/**
+ * Interface RuleSetInterface
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base
+ */
 interface RuleSetInterface
 {
 

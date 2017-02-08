@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Subscriber\ReconfigurationSubscriber;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
@@ -12,11 +10,22 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class RelatedFormTypeExtension
+ * @author Martin Schindler
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension
+ */
 class RelatedFormTypeExtension extends AbstractRelatedExtension
 {
 
+    /**
+     *
+     */
     const OPTION_NAME_ORIGINAL_OPTIONS = "original_options";
 
+    /**
+     *
+     */
     const OPTION_NAME_ALREADY_RECONFIGURED = "is_reconfigured";
 
     /**

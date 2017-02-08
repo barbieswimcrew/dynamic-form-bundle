@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger;
-
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger\OptionsMergerResponsibilityException;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
