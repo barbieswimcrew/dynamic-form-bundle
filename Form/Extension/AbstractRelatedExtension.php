@@ -32,11 +32,11 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
     public function __construct(ContainerInterface $container, array $config = array())
     {
         # if at least one config parameter exists in container
-        if ($container->hasParameter('barbieswimcrew_symfony_form_rule_set.strict_mode')) {
-            $this->attr['strictMode'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.strict_mode');
-            $this->attr['id'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_id');
-            $this->attr['targetsShow'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_show');
-            $this->attr['targetsHide'] = $container->getParameter('barbieswimcrew_symfony_form_rule_set.data_attr_targets_hide');
+        if ($container->hasParameter('barbieswimcrew_dynamic_form.strict_mode')) {
+            $this->attr['strictMode'] = $container->getParameter('barbieswimcrew_dynamic_form.strict_mode');
+            $this->attr['id'] = $container->getParameter('barbieswimcrew_dynamic_form.data_attr_id');
+            $this->attr['targetsShow'] = $container->getParameter('barbieswimcrew_dynamic_form.data_attr_targets_show');
+            $this->attr['targetsHide'] = $container->getParameter('barbieswimcrew_dynamic_form.data_attr_targets_hide');
         }
 
         # override attributes if custom config has been injected

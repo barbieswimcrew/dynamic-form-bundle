@@ -1,24 +1,24 @@
 services:
-    barbieswimcrew_symfony_form_rule_set.abstract_related_extension:
+    barbieswimcrew_dynamic_form.abstract_related_extension:
         abstract: true
         class: Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\AbstractRelatedExtension
         arguments:
             - "@service_container"
 
-    barbieswimcrew_symfony_form_rule_set.form_type_extension:
-        parent: barbieswimcrew_symfony_form_rule_set.abstract_related_extension
+    barbieswimcrew_dynamic_form.form_type_extension:
+        parent: barbieswimcrew_dynamic_form.abstract_related_extension
         class: Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension
         tags:
             - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\FormType }
 
-    barbieswimcrew_symfony_form_rule_set.choice_type_extension:
-        parent: barbieswimcrew_symfony_form_rule_set.abstract_related_extension
+    barbieswimcrew_dynamic_form.choice_type_extension:
+        parent: barbieswimcrew_dynamic_form.abstract_related_extension
         class: Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedChoiceTypeExtension
         tags:
             - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\ChoiceType }
 
-    barbieswimcrew_symfony_form_rule_set.checkbox_type_extension:
-        parent: barbieswimcrew_symfony_form_rule_set.abstract_related_extension
+    barbieswimcrew_dynamic_form.checkbox_type_extension:
+        parent: barbieswimcrew_dynamic_form.abstract_related_extension
         class: Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedCheckboxTypeExtension
         tags:
             - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\CheckboxType }
