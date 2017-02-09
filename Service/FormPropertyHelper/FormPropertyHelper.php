@@ -22,17 +22,19 @@ class FormPropertyHelper
      */
     public function getConfiguredFormTypeByForm(FormInterface $form)
     {
-        if (($resolvedType = $form->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
-            $formTypeClassName = get_class($resolvedType->getInnerType());
-        } else {
-            $formTypeClassName = get_class($form->getConfig()->getType());
+
+        $resolvedType = $form->getConfig()->getType();
+        $resolvedTypeClass = get_class($resolvedType);
+
+        if ($resolvedType instanceof ResolvedFormTypeInterface) {
+            $resolvedTypeClass = get_class($resolvedType->getInnerType());
         }
 
-        if (!class_exists($formTypeClassName)) {
-            throw new ClassNotFoundException(sprintf('Class "%s" not found', $formTypeClassName), null);
+        if (!class_exists($resolvedTypeClass)) {
+            throw new ClassNotFoundException(sprintf('Class "%s" not found', $resolvedTypeClass), null);
         }
 
-        $formType = new $formTypeClassName();
+        $formType = new $resolvedTypeClass();
 
         return $formType;
     }
