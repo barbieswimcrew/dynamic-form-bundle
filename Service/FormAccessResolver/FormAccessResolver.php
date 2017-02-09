@@ -16,6 +16,9 @@ class FormAccessResolver
     /** This divider is being used to define the path>to>field accessor string */
     const PATH_DIVIDER = '>';
 
+    /** This divider is being used to define the fully_qualified_namespace_of_field */
+    const NAMESPACE_DIVIDER = '_';
+
     /**
      * checks if the rule field accessor string is valid for the given form
      * @param $ruleFieldAccessor
@@ -29,9 +32,9 @@ class FormAccessResolver
         $path = array_filter(explode(self::PATH_DIVIDER, $ruleFieldAccessor));
 
         foreach ($path as $name) {
-            if ($form->has($name)) {
+            try {
                 $form = $form->get($name);
-            } else {
+            } catch (\OutOfBoundsException $e) {
                 throw new UndefinedFormAccessorException($ruleFieldAccessor, 500);
             }
         }
@@ -48,12 +51,16 @@ class FormAccessResolver
      */
     public function getFullName($ruleFieldAccessor, FormInterface $form)
     {
-        $parent = $this->getFormById($ruleFieldAccessor, $form->getParent());
-        $fullName = $ruleFieldAccessor;
+
+        # if given form doesn't have a parent use the form itself instead
+        $parentForm = (is_null($form->getParent())) ? $form : $form->getParent();
+
+        $parent = $this->getFormById($ruleFieldAccessor, $parentForm);
+        $fullName = $parent->getName();
 
         while (!$parent->isRoot()) {
             $parent = $parent->getParent();
-            $fullName = $parent->getName() . '_' . $fullName;
+            $fullName = $parent->getName() . self::NAMESPACE_DIVIDER . $fullName;
         }
 
         return $fullName;
