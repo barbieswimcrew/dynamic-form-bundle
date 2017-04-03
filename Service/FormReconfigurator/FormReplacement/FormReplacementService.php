@@ -20,10 +20,13 @@ class FormReplacementService
 {
     /** @var FormBuilderInterface $builder */
     private $builder;
+    /** @var OptionsMergerService */
+    private $merger;
 
-    public function __construct(FormBuilderInterface $builder)
+    public function __construct(FormBuilderInterface $builder, OptionsMergerService $merger)
     {
         $this->builder = $builder;
+        $this->merger = $merger;
     }
 
     /**
@@ -50,9 +53,7 @@ class FormReplacementService
             $type = get_class($originForm->getConfig()->getType());
         }
 
-        /** @var OptionsMergerService $optionsMergerService */
-        $optionsMergerService = new OptionsMergerService();
-        $mergedOptions = $optionsMergerService->getMergedOptions($originForm, $overrideOptions, $hidden);
+        $mergedOptions = $this->merger->getMergedOptions($originForm, $overrideOptions, $hidden);
 
         # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
         $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $blockFurtherReconfigurations;

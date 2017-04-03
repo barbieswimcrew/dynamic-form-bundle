@@ -6,6 +6,10 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedExcept
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormAccessResolver\FormAccessResolver;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReplacement\FormReplacementService;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\ChoiceTypeMultipleReconfigurationHandler;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\DefaultReconfigurationHandler;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -34,6 +38,9 @@ class FormReconfigurator
     /** @var FormPropertyHelper $formPropertyHelper */
     private $formPropertyHelper;
 
+    /** @var FormReplacementService $formReplacer */
+    private $formReplacer;
+
     /**
      * FormReconfigurator constructor.
      * @param RuleSetInterface $ruleSet
@@ -47,6 +54,8 @@ class FormReconfigurator
         $this->builder = $builder;
         $this->formAccessResolver = $formAccessResolver;
         $this->formPropertyHelper = $formPropertyHelper;
+        $this->formReplacer = new FormReplacementService($builder, new OptionsMergerService());
+
     }
 
     /**
@@ -76,7 +85,7 @@ class FormReconfigurator
                 $originalOptions = $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS);
                 if (is_array($originalOptions) and empty($originalOptions)) {
                     # break or continue - with a break we suggest that all fields of this rule are already set
-                    $this->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false, false);
+                    $this->formReplacer->replaceForm($showField, array(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS => $showField->getConfig()->getOptions()), false, false);
                 }
 
             }
@@ -97,9 +106,6 @@ class FormReconfigurator
     public function reconfigureTargetFormsByData(FormInterface $toggleForm, $data, $blockFurtherReconfigurations)
     {
 
-        /** @var FormInterface $parentForm */
-        $parentForm = $toggleForm->getParent();
-
         // special type conversion for boolean data types (e.g. CheckboxType)
         if (is_bool($data)) {
             $data = ($data === true ? 1 : 0);
@@ -116,146 +122,15 @@ class FormReconfigurator
             $data = $toggleForm->getConfig()->getOption('data');
         }
 
+        $choiceHandler = new ChoiceTypeMultipleReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer, $this->formPropertyHelper);
+        $defaultHandler = new DefaultReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer);
 
-        //array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
-        //submitted data means selected checkboxes (equal to show fields)
-        //not sumbitted data is equal to hide fields
-        //PROBLEM: EMPTY DATA IS PER DEFAULT NULL
-
-        # here we need to manually define the value for which the show OR hide algorithm should be executed
-        $configuredFormType = $this->formPropertyHelper->getConfiguredFormTypeByForm($toggleForm);
-        if (new ChoiceType() instanceof $configuredFormType and $toggleForm->getConfig()->getOption('multiple') === true) {
-            # get values of each chekboxes configuration
-
-            foreach ($this->collectConfiguredValuesForMultipleChoiceType($toggleForm) as $configuredValue) {
-                # actually we block reconfiguration in presubmit....
-                # BUT here we got a second step to do...
-                # todo just exclude the data values form the default fields to hide
-                if (in_array($configuredValue, $data)) {
-
-                    $this->disableFields($configuredValue, $parentForm, false);
-
-                } else {
-
-                    $this->disableFields($configuredValue, $parentForm, $blockFurtherReconfigurations);
-
-                }
-
-            }
-
-            foreach ($data as $value) {
-
-                //ATTENTION - VALUE IS THE FIELDS VALUE
-                $this->enableFields($value, $parentForm);   //todo check if here is a reset or a real enabling required
-
-            }
-
-        } else {
-            //todo
-            $this->disableFields($data, $parentForm, $blockFurtherReconfigurations);
-
-//            if (!false) {     //this was like it was wrapped into the reconfigure method
-
-            $this->enableFields($data, $parentForm);
-
-//            }
-            # here it is ok to do reconfiguration with the injected rulesets show/hide fields for each rule
-//            $this->reconfigure($data, $parentForm, false, $blockFurtherReconfigurations);   //todo extract desicion whether to enable or disable to this place, remove reconfigure method
-
+        if ($choiceHandler->isResponsible($toggleForm)) {
+            $choiceHandler->handle($data, $blockFurtherReconfigurations);
+        } elseif ($defaultHandler->isResponsible($toggleForm)) {
+            $defaultHandler->handle($data, $blockFurtherReconfigurations);
         }
 
     }
-
-    /**
-     * @param $data
-     * @param FormInterface $parentForm
-     * @author Anton Zoffmann
-     * @throws \Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\UndefinedFormAccessorException
-     * @todo this method does an reset, enabling looks different to this code... rename the method and create a new one
-     */
-    private function enableFields($data, FormInterface $parentForm)
-    {
-        try {
-            /**
-             * THIS IS THE DECISION which rule should be effected
-             * @var RuleInterface $rule
-             */
-            $rule = $this->ruleSet->getRule($data);
-
-            /** @var array $showFieldIds */
-            $showFieldIds = $rule->getShowFields();
-            # reconfiguration restriction shall only be applied if the parend form is disabled. when it is enabled,
-            # there is no reason to restrict 2nd level toggles and their targets
-            $blockFurtherReconfigurations = false;
-
-            foreach ($showFieldIds as $showFieldId) {
-                $showField = $this->formAccessResolver->getFormById($showFieldId, $parentForm);
-                $this->replaceForm(
-                    $showField,
-                    $showField->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS),
-                    false,
-                    $blockFurtherReconfigurations
-                );
-            }
-
-        } catch (NoRuleDefinedException $exception) {
-            # nothing to to if no rule is defined
-        }
-    }
-
-    /**
-     * @param $data
-     * @param FormInterface $parentForm
-     * @param $blockFurtherReconfigurations
-     * @author Martin Schindler
-     */
-    private function disableFields($data, FormInterface $parentForm, $blockFurtherReconfigurations)
-    {
-        try {
-            /**
-             * THIS IS THE DECISION which rule should be effected
-             * @var RuleInterface $rule
-             */
-            $rule = $this->ruleSet->getRule($data);
-
-            /** @var array $hideFields */
-            $hideFieldIds = $rule->getHideFields();
-
-            foreach ($hideFieldIds as $hideFieldId) {
-
-                $hideField = $this->formAccessResolver->getFormById($hideFieldId, $parentForm);
-
-                $this->replaceForm(
-                    $hideField,
-                    array(
-                        'constraints' => array(),
-                        'mapped' => false,
-                        'disabled' => true
-                    ),
-                    true,
-                    $blockFurtherReconfigurations
-                );
-
-            }
-
-        } catch (NoRuleDefinedException $exception) {
-            # nothing to to if no rule is defined
-        }
-    }
-
-    /**
-     * @param FormInterface $originForm
-     * @author Anton Zoffmann
-     * @return array
-     */
-    private function collectConfiguredValuesForMultipleChoiceType(FormInterface $originForm)
-    {
-        $configuredValues = array();
-        /** @var FormInterface $child */
-        foreach ($originForm as $child) {
-            $configuredValues[] = $child->getConfig()->getOption('value');
-        }
-
-        return $configuredValues;
-    }
+    
 }
