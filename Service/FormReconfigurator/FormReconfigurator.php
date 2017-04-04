@@ -2,21 +2,19 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator;
 
-use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\Rules\NoRuleDefinedException;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormAccessResolver\FormAccessResolver;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReplacement\FormReplacementService;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\Base\ReconfigurationHandlerInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\ChoiceTypeMultipleReconfigurationHandler;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\DefaultReconfigurationHandler;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\ResolvedFormTypeInterface;
 
 /**
  * Class FormReconfigurator
@@ -41,12 +39,19 @@ class FormReconfigurator
     /** @var FormReplacementService $formReplacer */
     private $formReplacer;
 
+    /** @var array $handlers */
+    private $handlers;
+
+    /** @var ReconfigurationHandlerInterface $defaultHandler */
+    private $defaultHandler;
+
     /**
      * FormReconfigurator constructor.
      * @param RuleSetInterface $ruleSet
      * @param FormBuilderInterface $builder
      * @param FormAccessResolver $formAccessResolver
      * @param FormPropertyHelper $formPropertyHelper
+     * @todo implement as service via DI because of interchangability of handlers/defaulthandler
      */
     public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder, FormAccessResolver $formAccessResolver, FormPropertyHelper $formPropertyHelper)
     {
@@ -55,6 +60,10 @@ class FormReconfigurator
         $this->formAccessResolver = $formAccessResolver;
         $this->formPropertyHelper = $formPropertyHelper;
         $this->formReplacer = new FormReplacementService($builder, new OptionsMergerService());
+
+        $this->handlers = array();
+        $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer, $this->formPropertyHelper);
+        $this->defaultHandler = new DefaultReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer);
 
     }
 
@@ -94,14 +103,13 @@ class FormReconfigurator
 
     }
 
-
     /**
      * here we always get the finally built form because we subscribed the pre_submit event
      * @param FormEvent|FormInterface $toggleForm
      * @param mixed $data
      * @param boolean $blockFurtherReconfigurations
-     * @throws \Symfony\Component\Debug\Exception\ClassNotFoundException
      * @author Anton Zoffmann
+     * @return void
      */
     public function reconfigureTargetFormsByData(FormInterface $toggleForm, $data, $blockFurtherReconfigurations)
     {
@@ -111,26 +119,58 @@ class FormReconfigurator
             $data = ($data === true ? 1 : 0);
         }
 
-        // if a checkbox returns null, this means disabled so set it to 0
-//        if($data === null){
-//            $data = 0;
-//        }
-
         // workaround for initially disabled fields
         // todo should this happen on pre submit reconfiguration or just on post-set-data???
         if (is_string($data) and strlen($data) == 0 or $data === null) {
             $data = $toggleForm->getConfig()->getOption('data');
         }
 
-        $choiceHandler = new ChoiceTypeMultipleReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer, $this->formPropertyHelper);
-        $defaultHandler = new DefaultReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer);
+        /** @var array $handlers */
+        $handlers = $this->handlers;
+        $handlers[] = $this->defaultHandler;
 
-        if ($choiceHandler->isResponsible($toggleForm)) {
-            $choiceHandler->handle($data, $blockFurtherReconfigurations);
-        } elseif ($defaultHandler->isResponsible($toggleForm)) {
-            $defaultHandler->handle($data, $blockFurtherReconfigurations);
+        /** @var ReconfigurationHandlerInterface $handler */
+        foreach ($handlers as $handler) {
+
+            if (!$handler->isResponsible($toggleForm)) {
+                continue;
+            }
+
+            $handler->handle($data, $blockFurtherReconfigurations);
+
+            return;
         }
 
     }
-    
+
+    /**
+     * @param array $handlers
+     * @return $this
+     */
+    public function setHandlers(array $handlers)
+    {
+        $this->handlers = $handlers;
+        return $this;
+    }
+
+    /**
+     * @param ReconfigurationHandlerInterface $handler
+     * @return $this
+     */
+    public function addHandler(ReconfigurationHandlerInterface $handler)
+    {
+        $this->handlers[] = $handler;
+        return $this;
+    }
+
+    /**
+     * @param ReconfigurationHandlerInterface $handler
+     * @return $this
+     */
+    public function setDefaultHandler(ReconfigurationHandlerInterface $handler)
+    {
+        $this->defaultHandler = $handler;
+        return $this;
+    }
+
 }
