@@ -35,4 +35,13 @@ class SimpleCheckboxRulesetType extends AbstractType
         ));
     }
 
+    /**
+     * FIX for symfony/form 2.7.* requirement
+     */
+    public function getName()
+    {
+        // TODO: Implement getName() method.
+    }
+
+
 }
