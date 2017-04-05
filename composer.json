@@ -14,21 +14,16 @@
     ],
     "require": {
         "php": ">=5.5.9",
-        "symfony/form": "2.7.*"
+        "symfony/form": "^3.2"
     },
     "require-dev": {
         "phpunit/phpunit": "5.7.*",
-        "symfony/validator": "2.7.*",
-        "symfony/dependency-injection": "2.7.*"
+        "symfony/validator": "^3.2",
+        "symfony/dependency-injection": "^3.2"
     },
     "autoload": {
         "psr-4": {
             "Barbieswimcrew\\Bundle\\DynamicFormBundle\\": ""
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Barbieswimcrew\\Bundle\\DynamicFormBundle\\Tests\\": "Tests/"
         }
     }
 }
