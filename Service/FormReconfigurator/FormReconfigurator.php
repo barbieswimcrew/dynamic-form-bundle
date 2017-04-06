@@ -59,7 +59,7 @@ class FormReconfigurator
         $this->builder = $builder;
         $this->formAccessResolver = $formAccessResolver;
         $this->formPropertyHelper = $formPropertyHelper;
-        $this->formReplacer = new FormReplacementService($builder, new OptionsMergerService());
+        $this->formReplacer = new FormReplacementService($builder, new OptionsMergerService(), $formPropertyHelper);
 
         $this->handlers = array();
         $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer, $this->formPropertyHelper);

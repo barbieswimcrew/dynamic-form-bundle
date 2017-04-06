@@ -31,7 +31,8 @@ class FormPropertyHelper
         }
 
         if (!class_exists($resolvedTypeClass)) {
-            throw new ClassNotFoundException(sprintf('Class "%s" not found', $resolvedTypeClass), null);
+             // @todo actually there seems to be no way to reach this exception - remove
+            throw new ClassNotFoundException(sprintf('Class "%s" not found', $resolvedTypeClass), null);    // @codeCoverageIgnore
         }
 
         $formType = new $resolvedTypeClass();

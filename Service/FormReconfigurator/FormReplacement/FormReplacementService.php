@@ -8,13 +8,12 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReplacement;
 
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\ResolvedFormTypeInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
 class FormReplacementService
 {
@@ -22,11 +21,14 @@ class FormReplacementService
     private $builder;
     /** @var OptionsMergerService */
     private $merger;
+    /** @var FormPropertyHelper  */
+    private $propertyHelper;
 
-    public function __construct(FormBuilderInterface $builder, OptionsMergerService $merger)
+    public function __construct(FormBuilderInterface $builder, OptionsMergerService $merger, FormPropertyHelper $formPropertyHelper)
     {
         $this->builder = $builder;
         $this->merger = $merger;
+        $this->propertyHelper = $formPropertyHelper;
     }
 
     /**
@@ -44,14 +46,11 @@ class FormReplacementService
         # e.g. we have a 2-hierarchy toggle and the "father" toggle is turned on - children should be allowed to do their own reconfiguration
         # e.g. BUT if the parent toggle is off - the children SHALL NOT reconfigure any of the fields, already reconfigured from the parent toggle
         if ($originForm->getConfig()->getOption(RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED) === true) {
-            return;
+            return;     // @codeCoverageIgnore
         }
 
-        if (($resolvedType = $originForm->getConfig()->getType()) instanceof ResolvedFormTypeInterface) {
-            $type = get_class($resolvedType->getInnerType());
-        } else {
-            $type = get_class($originForm->getConfig()->getType());
-        }
+        /** @var FormTypeInterface $type */
+        $type = $this->propertyHelper->getConfiguredFormTypeByForm($originForm);
 
         $mergedOptions = $this->merger->getMergedOptions($originForm, $overrideOptions, $hidden);
 
@@ -59,7 +58,7 @@ class FormReplacementService
         $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $blockFurtherReconfigurations;
 
         # setInheritData STOPS EVENT PROPAGATION DURING SAVEDATA()
-        $replacementBuilder = $this->builder->create($originForm->getName(), $type, $mergedOptions);
+        $replacementBuilder = $this->builder->create($originForm->getName(), get_class($type), $mergedOptions);
 
         $replacementForm = $replacementBuilder->getForm();
 
