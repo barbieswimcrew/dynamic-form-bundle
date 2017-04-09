@@ -53,7 +53,11 @@ class ChoiceTypeMultipleReconfigurationHandler extends AbstractReconfigurationHa
         //array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
         //submitted data means selected checkboxes (equal to show fields)
         //not sumbitted data is equal to hide fields
+
         //PROBLEM: EMPTY DATA IS PER DEFAULT NULL
+        if (!is_array($data)) {
+            return;
+        }
 
         /** @var FormInterface $parentForm */
         $parentForm = $this->toggleForm->getParent();
