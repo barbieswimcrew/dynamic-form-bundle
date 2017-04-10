@@ -1,7 +1,8 @@
 # dynamic-form-bundle
 
 [![Build Status](https://travis-ci.org/barbieswimcrew/dynamic-form-bundle.svg?branch=master)](https://travis-ci.org/barbieswimcrew/dynamic-form-bundle)
-[![Coverage Status](https://coveralls.io/repos/github/jidoka1902/dynamic-form-bundle/badge.svg?branch=master)](https://coveralls.io/github/jidoka1902/dynamic-form-bundle?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/barbieswimcrew/dynamic-form-bundle/badge.svg)](https://coveralls.io/github/barbieswimcrew/dynamic-form-bundle)
+
 ## Goals
 The symfony/form Component is great for creating HTML Forms with PHP backed validation while providing a super easy fluent interface to the developers who use and love it.
 
