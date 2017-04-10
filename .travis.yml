@@ -24,4 +24,4 @@ script:
   - ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_success:
-  - travis_retry php ./vendor/bin/coveralls --coverage_clover=clover.xml
+  - travis_retry php ./vendor/bin/coveralls --coverage_clover=build/logs/clover.xml
