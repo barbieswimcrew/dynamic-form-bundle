@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: anton
- * Date: 09.04.2017
- * Time: 11:09
+ * Date: 20.04.2017
+ * Time: 20:44
  */
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type;
@@ -14,7 +14,7 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtens
 use Barbieswimcrew\Bundle\DynamicFormBundle\Tests\Form\Type\Base\RelatedTypeTestCase;
 use Symfony\Component\DependencyInjection\Container;
 
-class MultipleChoiceRulesetTypeTest extends RelatedTypeTestCase
+class MultipleExpandedChoiceRulesetTypeTest extends RelatedTypeTestCase
 {
     /**
      * @author Anton Zoffmann
@@ -27,25 +27,7 @@ class MultipleChoiceRulesetTypeTest extends RelatedTypeTestCase
             'dependency-2' => 'asdf',
         );
 
-        $form = $this->factory->create(MultipleChoiceRulesetType::class);
-        $form->submit($formData);
-
-        $this->assertTrue($form->isSynchronized());
-        $this->assertEquals(1, $form->get('dependency-1')->getErrors()->count());
-    }
-
-    /**
-     * @author Anton Zoffmann
-     */
-    public function testSubmitChoiceTwoWithFalseData()
-    {
-        $formData = array(
-            'multipleChoiceField' => array(1),
-            'dependency-1' => '',
-            'dependency-2' => 'asdf',
-        );
-
-        $form = $this->factory->create(MultipleChoiceRulesetType::class);
+        $form = $this->factory->create(MultipleExpandedChoiceRulesetType::class);
         $form->submit($formData);
 
         $this->assertTrue($form->isSynchronized());
@@ -53,27 +35,6 @@ class MultipleChoiceRulesetTypeTest extends RelatedTypeTestCase
 
         $this->assertEquals(0, $form->get('dependency-2')->getErrors()->count());
         $this->assertEquals('', $form->get('dependency-2')->getData());
-    }
-
-    /**
-     * @author Anton Zoffmann
-     */
-    public function testSubmitChoiceOneAndTwoWithoutData()
-    {
-        $formData = array(
-            'multipleChoiceField' => array(1,2),
-            'dependency-1' => '',
-            'dependency-2' => '',
-        );
-
-        $form = $this->factory->create(MultipleChoiceRulesetType::class);
-        $form->submit($formData);
-
-        $this->assertTrue($form->isSynchronized());
-        $this->assertEquals(2, $form->getErrors(true)->count());
-        $this->assertEquals(1, $form->get('dependency-1')->getErrors()->count());
-        $this->assertEquals(1, $form->get('dependency-2')->getErrors()->count());
-
     }
 
     /**
@@ -87,7 +48,7 @@ class MultipleChoiceRulesetTypeTest extends RelatedTypeTestCase
             'dependency-2' => '',
         );
 
-        $form = $this->factory->create(MultipleChoiceRulesetType::class);
+        $form = $this->factory->create(MultipleExpandedChoiceRulesetType::class);
         $form->submit($formData);
 
         $this->assertTrue($form->isSynchronized());
@@ -113,4 +74,5 @@ class MultipleChoiceRulesetTypeTest extends RelatedTypeTestCase
             new RelatedFormTypeExtension($containerMock),
         );
     }
+
 }
