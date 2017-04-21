@@ -16,6 +16,7 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\Reconfigu
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\Base\ReconfigurationHandlerInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormInterface;
 
 class ChoiceTypeMultipleReconfigurationHandler extends AbstractReconfigurationHandler implements ReconfigurationHandlerInterface
@@ -53,7 +54,11 @@ class ChoiceTypeMultipleReconfigurationHandler extends AbstractReconfigurationHa
         //array handling (special case for ChoiceType MULTIPLE - here we have checkboxes but no CheckboxTypes)
         //submitted data means selected checkboxes (equal to show fields)
         //not sumbitted data is equal to hide fields
+
         //PROBLEM: EMPTY DATA IS PER DEFAULT NULL
+        if (!is_array($data)) {
+            return;
+        }
 
         /** @var FormInterface $parentForm */
         $parentForm = $this->toggleForm->getParent();
@@ -62,23 +67,21 @@ class ChoiceTypeMultipleReconfigurationHandler extends AbstractReconfigurationHa
         foreach ($this->collectConfiguredValuesForMultipleChoiceType($this->toggleForm) as $configuredValue) {
             # actually we block reconfiguration in presubmit....
             # BUT here we got a second step to do...
-            # todo just exclude the data values form the default fields to hide
+            # just exclude the data values form the default fields to hide
             if (in_array($configuredValue, $data)) {
 
-                $this->disableFields($configuredValue, $parentForm, false);
-
-            } else {
-
-                $this->disableFields($configuredValue, $parentForm, $blockFurtherReconfigurations);
+                $blockFurtherReconfigurations = false;
 
             }
+
+            $this->disableFields($configuredValue, $parentForm, $blockFurtherReconfigurations);
 
         }
 
         foreach ($data as $value) {
 
             //ATTENTION - VALUE IS THE FIELDS VALUE
-            $this->enableFields($value, $parentForm);   //todo check if here is a reset or a real enabling required
+            $this->enableFields($value, $parentForm);
 
         }
 
@@ -91,12 +94,8 @@ class ChoiceTypeMultipleReconfigurationHandler extends AbstractReconfigurationHa
      */
     private function collectConfiguredValuesForMultipleChoiceType(FormInterface $originForm)
     {
-        $configuredValues = array();
-        /** @var FormInterface $child */
-        foreach ($originForm as $child) {
-            $configuredValues[] = $child->getConfig()->getOption('value');
-        }
-
-        return $configuredValues;
+        /** @var FormBuilder $config */
+        $config = $originForm->getConfig();
+        return $config->getOption("choices");
     }
 }
