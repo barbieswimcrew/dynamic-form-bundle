@@ -3,73 +3,38 @@
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger;
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Exceptions\OptionsMerger\NoOptionsMergerResponsibleException;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
 /**
  * Class OptionsMergerService
  * @author Anton Zoffmann
  * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger
  */
-class OptionsMergerService implements OptionsMergerInterface
+class OptionsMergerService
 {
 
     /** @var array $optionsMergers */
     private $optionsMergers;
+    /**
+     * @var FormPropertyHelper
+     */
+    private $propertyHelper;
 
     /**
      * OptionsMergerService constructor.
+     * @param FormPropertyHelper $propertyHelper
+     * @param AbstractOptionsMerger[] $mergers
      */
-    public function __construct()
+    public function __construct(FormPropertyHelper $propertyHelper, AbstractOptionsMerger ...$mergers)
     {
-        $this->setDefaultOptionsMergers();
-        # todo make OptionsMergers open for extension, eventually injectable customized OptionsMergers
-        # todo make hidden css class configurable
-    }
 
-    /**
-     * @param FormInterface $form
-     * @param array $overrideOptions
-     * @param bool $hidden
-     * @author Anton Zoffmann
-     * @return array
-     * @throws NoOptionsMergerResponsibleException
-     */
-    public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden)
-    {
-        /** @var OptionsMergerInterface $optionsMerger */
-        $optionsMerger = $this->getResponsibleOptionsMerger($form);
+        $this->optionsMergers = $mergers;
 
-        return $optionsMerger->getMergedOptions($form, $overrideOptions, $hidden);
-    }
-
-    /**
-     * @author Anton Zoffmann
-     */
-    private function setDefaultOptionsMergers()
-    {
-        $defaultOptionMergers = array(
-            new ScalarFormTypeOptionsMerger(),
-            new RepeatedTypeOptionsMerger(),
-//            new CollectionTypeOptionsMerger(), //todo implement
-        );
-
-        foreach ($defaultOptionMergers as $defaultOptionMerger) {
-            $this->addOptionsMerger($defaultOptionMerger);
-        }
-    }
-
-    /**
-     * @param AbstractOptionsMerger $optionsMerger
-     * @author Anton Zoffmann
-     */
-    private function addOptionsMerger(AbstractOptionsMerger $optionsMerger)
-    {
-        # here we could decide if we want to allow multiple optionsMergers for the same class/interface it is responsible for
-        $this->optionsMergers[] = $optionsMerger;
+        $this->propertyHelper = $propertyHelper;
     }
 
     /**
@@ -80,18 +45,21 @@ class OptionsMergerService implements OptionsMergerInterface
      * @return AbstractOptionsMerger
      * @throws NoOptionsMergerResponsibleException
      */
-    private function getResponsibleOptionsMerger(FormInterface $form)
+    public function getOptionsMerger(FormInterface $form)
     {
         $optionsMergerForInterface = null;
 
+        /** @var FormTypeInterface $formType */
+        $formType = $this->propertyHelper->getConfiguredFormTypeByForm($form);
+
         /** @var AbstractOptionsMerger $optionsMerger */
         foreach ($this->optionsMergers as $optionsMerger) {
-            if ($optionsMerger->isResponsibleForFormTypeClass($form)) {
+            if ($optionsMerger->isResponsibleForClass($formType)) {
                 return $optionsMerger;
             }
 
             # if we find a merger by interface, cache it so all class possibilities get their chances to be found
-            if ($optionsMerger->isResponsibleForFormTypeInterface($form)) {
+            if ($optionsMerger->isResponsibleForInterface($formType)) {
                 $optionsMergerForInterface = $optionsMerger;
             }
         }

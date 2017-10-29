@@ -14,6 +14,7 @@ use Symfony\Component\Form\FormTypeInterface;
 class ScalarFormTypeOptionsMerger extends AbstractOptionsMerger
 {
     /**
+     * todo this is depending on the used frontend-framework and should be configurable
      * @deprecated
      */
     const CSS_HIDDEN_CLASS = "hidden";
@@ -27,7 +28,10 @@ class ScalarFormTypeOptionsMerger extends AbstractOptionsMerger
      */
     public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden)
     {
-        /** @var array $originOptions */
+        /**
+         * todo this isn't so good for testing - other ideas?
+         * @var array $originOptions
+         */
         $originOptions = $form->getConfig()->getOptions();
 
         # array recursive because the options array contains other arrays to be merged (attr,...)

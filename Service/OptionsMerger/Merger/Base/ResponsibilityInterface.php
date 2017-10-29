@@ -2,7 +2,7 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base;
 
-use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
 /**
  * Interface ResponsibilityInterface
@@ -13,17 +13,18 @@ interface ResponsibilityInterface
 {
     /**
      * checks if the OptionsMerger is responsible for the given form objects class
-     * @param FormInterface $form
-     * @author Anton Zoffmann
+     * @param FormTypeInterface $formType
      * @return bool
+     * @author Anton Zoffmann
      */
-    public function isResponsibleForFormTypeClass(FormInterface $form);
+    public function isResponsibleForClass(FormTypeInterface $formType);
 
     /**
      * checks if the OptionsMerger is responsible for the given form objects interface
-     * @param FormInterface $form
-     * @author Anton Zoffmann
+     * @param FormTypeInterface $formType
      * @return bool
+     * @author Anton Zoffmann
      */
-    public function isResponsibleForFormTypeInterface(FormInterface $form);
+    public function isResponsibleForInterface(FormTypeInterface $formType);
+
 }
