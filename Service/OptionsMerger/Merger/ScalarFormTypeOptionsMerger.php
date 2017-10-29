@@ -2,7 +2,7 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger;
 
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
@@ -11,7 +11,7 @@ use Symfony\Component\Form\FormTypeInterface;
  * @author Anton Zoffmann
  * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger
  */
-class ScalarFormTypeOptionsMerger extends AbstractOptionsMerger
+class ScalarFormTypeOptionsMerger implements OptionsMergerInterface
 {
     /**
      * todo this is depending on the used frontend-framework and should be configurable
@@ -57,7 +57,7 @@ class ScalarFormTypeOptionsMerger extends AbstractOptionsMerger
      * @author Anton Zoffmann
      * @return string
      */
-    protected function getApplicableInterface()
+    public function getApplicableInterface()
     {
         return FormTypeInterface::class;
     }
@@ -66,7 +66,7 @@ class ScalarFormTypeOptionsMerger extends AbstractOptionsMerger
      * @author Anton Zoffmann
      * @return array
      */
-    protected function getApplicableClasses()
+    public function getApplicableClasses()
     {
         return array();
     }

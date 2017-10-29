@@ -20,4 +20,18 @@ interface OptionsMergerInterface
      */
     public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden);
 
+    /**
+     * returns a fully qualified namespace of the interface
+     * @author Anton Zoffmann
+     * @return string
+     */
+    public function getApplicableInterface();
+
+    /**
+     * returns an array of strings from the fully qualified namespaces of applicable classes
+     * @author Anton Zoffmann
+     * @return array
+     */
+    public function getApplicableClasses();
+
 }

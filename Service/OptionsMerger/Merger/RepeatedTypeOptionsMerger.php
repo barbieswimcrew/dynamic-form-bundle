@@ -40,7 +40,7 @@ class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
      * @author Martin Schindler
      * @return array
      */
-    protected function getApplicableClasses()
+    public function getApplicableClasses()
     {
         return array(
             RepeatedType::class,
@@ -51,7 +51,7 @@ class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
      * @author Martin Schindler
      * @return string
      */
-    protected function getApplicableInterface()
+    public function getApplicableInterface()
     {
         return "";
     }

@@ -12,6 +12,7 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\Reconfigu
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\ResponsibilityChecker;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -62,7 +63,7 @@ class FormReconfigurator
         $this->formAccessResolver = $formAccessResolver;
         $this->formPropertyHelper = $formPropertyHelper;
 
-        $optionsMerger = new OptionsMergerService(new ScalarFormTypeOptionsMerger(), new RepeatedTypeOptionsMerger());
+        $optionsMerger = new OptionsMergerService($formPropertyHelper, new ResponsibilityChecker(), new ScalarFormTypeOptionsMerger(), new RepeatedTypeOptionsMerger());
 
         $this->formReplacer = new FormReplacementService($builder, $optionsMerger, $formPropertyHelper);
 
