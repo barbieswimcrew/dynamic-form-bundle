@@ -9,7 +9,10 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormRepla
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\Base\ReconfigurationHandlerInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\ChoiceTypeMultipleReconfigurationHandler;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\DefaultReconfigurationHandler;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\ResponsibilityChecker;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -59,7 +62,10 @@ class FormReconfigurator
         $this->builder = $builder;
         $this->formAccessResolver = $formAccessResolver;
         $this->formPropertyHelper = $formPropertyHelper;
-        $this->formReplacer = new FormReplacementService($builder, new OptionsMergerService(), $formPropertyHelper);
+
+        $optionsMerger = new OptionsMergerService($formPropertyHelper, new ResponsibilityChecker(), new ScalarFormTypeOptionsMerger(), new RepeatedTypeOptionsMerger());
+
+        $this->formReplacer = new FormReplacementService($builder, $optionsMerger, $formPropertyHelper);
 
         $this->handlers = array();
         $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer, $this->formPropertyHelper);
@@ -165,6 +171,7 @@ class FormReconfigurator
 
     /**
      * @param ReconfigurationHandlerInterface $handler
+     * @
      * @return $this
      */
     public function setDefaultHandler(ReconfigurationHandlerInterface $handler)

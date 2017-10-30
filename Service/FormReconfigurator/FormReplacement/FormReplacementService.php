@@ -9,6 +9,7 @@
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReplacement;
 
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -52,7 +53,11 @@ class FormReplacementService
         /** @var FormTypeInterface $type */
         $type = $this->propertyHelper->getConfiguredFormTypeByForm($originForm);
 
-        $mergedOptions = $this->merger->getMergedOptions($originForm, $overrideOptions, $hidden);
+        /** @var AbstractOptionsMerger $merger */
+        $merger = $this->merger->getOptionsMerger($originForm);
+
+        /** @var array $mergedOptions */
+        $mergedOptions = $merger->getMergedOptions($originForm, $overrideOptions, $hidden);
 
         # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
         $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $blockFurtherReconfigurations;
