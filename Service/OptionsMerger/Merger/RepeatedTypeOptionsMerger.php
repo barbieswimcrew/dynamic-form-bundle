@@ -46,11 +46,25 @@ class RepeatedTypeOptionsMerger implements OptionsMergerInterface
         # do a merge of the standard scalar options
         $merged = $this->scalarMerger->mergeOptions($originOptions, $overrideOptions, $hidden);
 
-        if (array_key_exists('options', $originOptions)) {
+        $attrClasses = array();
 
-            $merged['options']['attr']['class'] = $this->cssHelper->implodeClasses($this->cssHelper->handleHiddenClass($this->cssHelper->explodeClasses($merged['attr']['class']), $hidden));
-            $merged['options']['label_attr']['class'] = $this->cssHelper->implodeClasses($this->cssHelper->handleHiddenClass($this->cssHelper->explodeClasses($merged['label_attr']['class']), $hidden));
+        $labelAttrClasses = array();
+
+        if (isset($originOptions['options']['attr']['class'])) {
+            $attrClasses = $this->cssHelper->explodeClasses($originOptions['options']['attr']['class']);
         }
+
+        if (isset($originOptions['options']['label_attr']['class'])) {
+            $labelAttrClasses = $this->cssHelper->explodeClasses($originOptions['options']['label_attr']['class']);
+        }
+
+        $attrClasses = $this->cssHelper->handleHiddenClass($attrClasses, $hidden);
+
+        $labelAttrClasses = $this->cssHelper->handleHiddenClass($labelAttrClasses, $hidden);
+
+        $merged['options']['attr']['class'] = $this->cssHelper->implodeClasses($attrClasses);
+
+        $merged['options']['label_attr']['class'] = $this->cssHelper->implodeClasses($labelAttrClasses);
 
         return $merged;
     }
