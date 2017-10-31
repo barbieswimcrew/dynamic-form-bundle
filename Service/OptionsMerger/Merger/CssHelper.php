@@ -47,39 +47,21 @@ class CssHelper
         /** @var array $mergedClasses */
         $mergedClasses = $this->mergeClasses($originClasses, $overrideClasses);
 
-        if ($hidden === true) {
-            $mergedClasses = $this->appendHiddenClass($mergedClasses);
-        } else {
-            $mergedClasses = $this->removeHiddenClass($mergedClasses);
-        }
+        $mergedClasses = $this->handleHiddenClass($mergedClasses, $hidden);
 
         return $this->implodeClasses($mergedClasses);
     }
 
     /**
-     * merge class strings
-     * @param array $originClasses
-     * @param array $overrideClasses
-     * @return array
-     * @author Anton Zoffmann
-     */
-    public function mergeClasses(array $originClasses, array $overrideClasses)
-    {
-        return array_merge($originClasses, $overrideClasses);
-    }
-
-    /**
-     * @param string $classesString
+     * @param array $classes
      * @param boolean $hidden
-     * @return string
+     * @return array
      */
-    public function handleHiddenClass($classesString, $hidden)
+    public function handleHiddenClass(array $classes, $hidden)
     {
-        $classes = $this->explodeClasses($classesString);
 
-        $classes = ($hidden) ? $this->appendHiddenClass($classes) : $this->removeHiddenClass($classes);
+        return ($hidden) ? $this->appendHiddenClass($classes) : $this->removeHiddenClass($classes);
 
-        return $this->implodeClasses($classes);
     }
 
     /**
@@ -105,6 +87,18 @@ class CssHelper
         return array_filter($classes, function ($class) {
             return ($class !== $this->hiddenClass);
         });
+    }
+
+    /**
+     * merge class strings
+     * @param array $originClasses
+     * @param array $overrideClasses
+     * @return array
+     * @author Anton Zoffmann
+     */
+    public function mergeClasses(array $originClasses, array $overrideClasses)
+    {
+        return array_merge($originClasses, $overrideClasses);
     }
 
     /**

@@ -48,8 +48,8 @@ class RepeatedTypeOptionsMerger implements OptionsMergerInterface
 
         if (array_key_exists('options', $originOptions)) {
 
-            $merged['options']['attr']['class'] = $this->cssHelper->handleHiddenClass($merged['attr']['class'], $hidden);
-            $merged['options']['label_attr']['class'] = $this->cssHelper->handleHiddenClass($merged['label_attr']['class'], $hidden);
+            $merged['options']['attr']['class'] = $this->cssHelper->implodeClasses($this->cssHelper->handleHiddenClass($this->cssHelper->explodeClasses($merged['attr']['class']), $hidden));
+            $merged['options']['label_attr']['class'] = $this->cssHelper->implodeClasses($this->cssHelper->handleHiddenClass($this->cssHelper->explodeClasses($merged['label_attr']['class']), $hidden));
         }
 
         return $merged;
