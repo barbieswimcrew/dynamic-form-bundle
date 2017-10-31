@@ -2,35 +2,54 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger;
 
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Symfony\Component\Form\FormInterface;
 
 /**
  * Class RepeatedTypeOptionsMerger
  * @author Anton Zoffmann
  * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger
  */
-class RepeatedTypeOptionsMerger extends ScalarFormTypeOptionsMerger
+class RepeatedTypeOptionsMerger implements OptionsMergerInterface
 {
+
     /**
-     * @param FormInterface $form
+     * @var OptionsMergerInterface
+     */
+    private $scalarMerger;
+    /**
+     * @var CssHelper
+     */
+    private $cssHelper;
+
+    /**
+     * RepeatedTypeOptionsMerger constructor.
+     * @param OptionsMergerInterface $scalarMerger
+     * @param CssHelper $cssHelper
+     */
+    public function __construct(OptionsMergerInterface $scalarMerger, CssHelper $cssHelper)
+    {
+        $this->scalarMerger = $scalarMerger;
+        $this->cssHelper = $cssHelper;
+    }
+
+    /**
+     * @param array $originOptions
      * @param array $overrideOptions
      * @param bool $hidden
-     * @author Martin Schindler
      * @return array
+     * @author Martin Schindler
      */
-    public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden)
+    public function mergeOptions(array $originOptions, array $overrideOptions, $hidden)
     {
-        /** @var array $originOptions */
-        $originOptions = $form->getConfig()->getOptions();
 
         # do a merge of the standard scalar options
-        $merged = parent::getMergedOptions($form, $overrideOptions, $hidden);
+        $merged = $this->scalarMerger->mergeOptions($originOptions, $overrideOptions, $hidden);
 
-        if (isset($originOptions['options'])) {
+        if (array_key_exists('options', $originOptions)) {
 
-            $merged['options']['attr']['class'] = $this->handleHiddenClass($merged['attr'], $hidden);
-            $merged['options']['label_attr']['class'] = $this->handleHiddenClass($merged['label_attr'], $hidden);
+            $merged['options']['attr']['class'] = $this->cssHelper->handleHiddenClass($merged['attr']['class'], $hidden);
+            $merged['options']['label_attr']['class'] = $this->cssHelper->handleHiddenClass($merged['label_attr']['class'], $hidden);
         }
 
         return $merged;
