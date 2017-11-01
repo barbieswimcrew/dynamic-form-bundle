@@ -1,30 +1,35 @@
 <?php
-/**
- * @author Anton Zoffmann
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- * Date: 03.04.17
- * Time: 19:04
- */
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReplacement;
 
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\Base\AbstractOptionsMerger;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Form\Extension\RelatedFormTypeExtension;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
+/**
+ * Class FormReplacementService
+ * @package Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReplacement
+ */
 class FormReplacementService
 {
     /** @var FormBuilderInterface $builder */
     private $builder;
+
     /** @var OptionsMergerService */
     private $merger;
+
     /** @var FormPropertyHelper  */
     private $propertyHelper;
 
+    /**
+     * FormReplacementService constructor.
+     * @param FormBuilderInterface $builder
+     * @param OptionsMergerService $merger
+     * @param FormPropertyHelper $formPropertyHelper
+     */
     public function __construct(FormBuilderInterface $builder, OptionsMergerService $merger, FormPropertyHelper $formPropertyHelper)
     {
         $this->builder = $builder;
@@ -53,13 +58,15 @@ class FormReplacementService
         /** @var FormTypeInterface $type */
         $type = $this->propertyHelper->getConfiguredFormTypeByForm($originForm);
 
-        /** @var AbstractOptionsMerger $merger */
-        $merger = $this->merger->getOptionsMerger($originForm);
+        /** @var array $originOptions */
+        $originOptions = $originForm->getConfig()->getOptions();
 
         /** @var array $mergedOptions */
-        $mergedOptions = $merger->getMergedOptions($originForm, $overrideOptions, $hidden);
+        $mergedOptions = $this->merger
+            ->getOptionsMerger($originForm)
+            ->mergeOptions($originOptions, $overrideOptions, $hidden);
 
-        # ATTENTION: this desicion-making property shall not be handled by any OptionsMerger which is under users controll.
+        # ATTENTION: this decision-making property shall not be handled by any OptionsMerger which is under users control.
         $mergedOptions[RelatedFormTypeExtension::OPTION_NAME_ALREADY_RECONFIGURED] = $blockFurtherReconfigurations;
 
         # setInheritData STOPS EVENT PROPAGATION DURING SAVEDATA()

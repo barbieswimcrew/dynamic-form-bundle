@@ -9,6 +9,8 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormRepla
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\Base\ReconfigurationHandlerInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\ChoiceTypeMultipleReconfigurationHandler;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\DefaultReconfigurationHandler;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\CssHelper;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
@@ -30,14 +32,8 @@ class FormReconfigurator
     /** @var RuleSetInterface $ruleSet */
     private $ruleSet;
 
-    /** @var FormBuilderInterface $builder */
-    private $builder;
-
     /** @var FormAccessResolver $formAccessResolver */
     private $formAccessResolver;
-
-    /** @var FormPropertyHelper $formPropertyHelper */
-    private $formPropertyHelper;
 
     /** @var FormReplacementService $formReplacer */
     private $formReplacer;
@@ -59,17 +55,21 @@ class FormReconfigurator
     public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder, FormAccessResolver $formAccessResolver, FormPropertyHelper $formPropertyHelper)
     {
         $this->ruleSet = $ruleSet;
-        $this->builder = $builder;
         $this->formAccessResolver = $formAccessResolver;
-        $this->formPropertyHelper = $formPropertyHelper;
 
-        $optionsMerger = new OptionsMergerService($formPropertyHelper, new ResponsibilityChecker(), new ScalarFormTypeOptionsMerger(), new RepeatedTypeOptionsMerger());
+        $cssHelper = new CssHelper("hidden");   //todo make hidden class configurable
+        /** @var OptionsMergerInterface $scalarMerger */
+        $scalarMerger = new ScalarFormTypeOptionsMerger($cssHelper);
+        /** @var OptionsMergerInterface $repeatedMerger */
+        $repeatedMerger = new RepeatedTypeOptionsMerger($scalarMerger, $cssHelper);
+
+        $optionsMerger = new OptionsMergerService($formPropertyHelper, new ResponsibilityChecker(), $scalarMerger, $repeatedMerger);
 
         $this->formReplacer = new FormReplacementService($builder, $optionsMerger, $formPropertyHelper);
 
         $this->handlers = array();
-        $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer, $this->formPropertyHelper);
-        $this->defaultHandler = new DefaultReconfigurationHandler($this->ruleSet, $this->formAccessResolver, $this->formReplacer);
+        $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($ruleSet, $formAccessResolver, $this->formReplacer, $formPropertyHelper);
+        $this->defaultHandler = new DefaultReconfigurationHandler($ruleSet, $formAccessResolver, $this->formReplacer);
 
     }
 

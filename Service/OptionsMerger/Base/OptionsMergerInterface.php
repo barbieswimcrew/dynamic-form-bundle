@@ -2,7 +2,6 @@
 
 namespace Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base;
 
-use Symfony\Component\Form\FormInterface;
 
 /**
  * Interface OptionsMergerInterface
@@ -12,13 +11,13 @@ use Symfony\Component\Form\FormInterface;
 interface OptionsMergerInterface
 {
     /**
-     * @param FormInterface $form
+     * @param array $originalOptions
      * @param array $overrideOptions
      * @param bool $hidden
-     * @author Anton Zoffmann
      * @return array
+     * @author Anton Zoffmann
      */
-    public function getMergedOptions(FormInterface $form, array $overrideOptions, $hidden);
+    public function mergeOptions(array $originalOptions, array $overrideOptions, $hidden);
 
     /**
      * returns a fully qualified namespace of the interface
