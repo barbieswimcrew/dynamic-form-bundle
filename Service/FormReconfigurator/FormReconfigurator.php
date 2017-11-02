@@ -53,6 +53,7 @@ class FormReconfigurator
         $this->formReplacer = $formReplacer;
 
         $this->handlers = array();
+
         $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($ruleSet, $formAccessResolver, $formReplacer, $formPropertyHelper);
         $this->defaultHandler = new DefaultReconfigurationHandler($ruleSet, $formAccessResolver, $formReplacer);
 
