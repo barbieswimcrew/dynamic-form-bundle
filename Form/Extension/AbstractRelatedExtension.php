@@ -43,6 +43,7 @@ abstract class AbstractRelatedExtension extends AbstractTypeExtension
             $this->attr['id'] = $container->getParameter('barbieswimcrew_dynamic_form.data_attr_id');
             $this->attr['targetsShow'] = $container->getParameter('barbieswimcrew_dynamic_form.data_attr_targets_show');
             $this->attr['targetsHide'] = $container->getParameter('barbieswimcrew_dynamic_form.data_attr_targets_hide');
+            $this->attr['hiddenClass'] = $container->getParameter('barbieswimcrew_dynamic_form.data_attr_targets_hide');
         }
 
         # override attributes if custom config has been injected
