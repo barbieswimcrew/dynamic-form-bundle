@@ -50,7 +50,7 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
 
         $formReplacer = new FormReplacementService($builder, $optionsMerger, $formPropertyHelper);
 
-        $this->reconfigurator = new FormReconfigurator($ruleSet, $builder, new FormAccessResolver(), $formPropertyHelper, $formReplacer);
+        $this->reconfigurator = new FormReconfigurator($ruleSet, new FormAccessResolver(), $formPropertyHelper, $formReplacer);
     }
 
     /**
