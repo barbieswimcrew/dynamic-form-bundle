@@ -9,15 +9,8 @@ use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormRepla
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\Base\ReconfigurationHandlerInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\ChoiceTypeMultipleReconfigurationHandler;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\ReconfigurationHandlers\DefaultReconfigurationHandler;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Base\OptionsMergerInterface;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\CssHelper;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
-use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\ResponsibilityChecker;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleInterface;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormInterface;
 
@@ -47,29 +40,22 @@ class FormReconfigurator
     /**
      * FormReconfigurator constructor.
      * @param RuleSetInterface $ruleSet
-     * @param FormBuilderInterface $builder
      * @param FormAccessResolver $formAccessResolver
      * @param FormPropertyHelper $formPropertyHelper
+     * @param FormReplacementService $formReplacer
      * @todo implement as service via DI because of interchangability of handlers/defaulthandler
      */
-    public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder, FormAccessResolver $formAccessResolver, FormPropertyHelper $formPropertyHelper)
+    public function __construct(RuleSetInterface $ruleSet, FormAccessResolver $formAccessResolver, FormPropertyHelper $formPropertyHelper, FormReplacementService $formReplacer)
     {
         $this->ruleSet = $ruleSet;
         $this->formAccessResolver = $formAccessResolver;
 
-        $cssHelper = new CssHelper("hidden");   //todo make hidden class configurable
-        /** @var OptionsMergerInterface $scalarMerger */
-        $scalarMerger = new ScalarFormTypeOptionsMerger($cssHelper);
-        /** @var OptionsMergerInterface $repeatedMerger */
-        $repeatedMerger = new RepeatedTypeOptionsMerger($scalarMerger, $cssHelper);
-
-        $optionsMerger = new OptionsMergerService($formPropertyHelper, new ResponsibilityChecker(), $scalarMerger, $repeatedMerger);
-
-        $this->formReplacer = new FormReplacementService($builder, $optionsMerger, $formPropertyHelper);
+        $this->formReplacer = $formReplacer;
 
         $this->handlers = array();
-        $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($ruleSet, $formAccessResolver, $this->formReplacer, $formPropertyHelper);
-        $this->defaultHandler = new DefaultReconfigurationHandler($ruleSet, $formAccessResolver, $this->formReplacer);
+
+        $this->handlers[] = new ChoiceTypeMultipleReconfigurationHandler($ruleSet, $formAccessResolver, $formReplacer, $formPropertyHelper);
+        $this->defaultHandler = new DefaultReconfigurationHandler($ruleSet, $formAccessResolver, $formReplacer);
 
     }
 

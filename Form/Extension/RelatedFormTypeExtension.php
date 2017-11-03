@@ -78,7 +78,7 @@ class RelatedFormTypeExtension extends AbstractRelatedExtension
             is_array($builder->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS)) and
             empty($builder->getOption(RelatedFormTypeExtension::OPTION_NAME_ORIGINAL_OPTIONS))
         ) {
-            $builder->addEventSubscriber(new ReconfigurationSubscriber($ruleset, $builder));
+            $builder->addEventSubscriber(new ReconfigurationSubscriber($ruleset, $builder, $this->attr['hiddenClass']));
         }
     }
 

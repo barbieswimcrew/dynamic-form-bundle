@@ -5,6 +5,12 @@ namespace Barbieswimcrew\Bundle\DynamicFormBundle\Form\Subscriber;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormAccessResolver\FormAccessResolver;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormPropertyHelper\FormPropertyHelper;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReconfigurator;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\FormReconfigurator\FormReplacement\FormReplacementService;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\CssHelper;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\RepeatedTypeOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\Merger\ScalarFormTypeOptionsMerger;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\OptionsMergerService;
+use Barbieswimcrew\Bundle\DynamicFormBundle\Service\OptionsMerger\ResponsibilityChecker;
 use Barbieswimcrew\Bundle\DynamicFormBundle\Structs\Rules\Base\RuleSetInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,10 +33,24 @@ class ReconfigurationSubscriber implements EventSubscriberInterface
      * ReconfigurationSubscriber constructor.
      * @param RuleSetInterface $ruleSet
      * @param FormBuilderInterface $builder
+     * @param string $hiddenClass
      */
-    public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder)
+    public function __construct(RuleSetInterface $ruleSet, FormBuilderInterface $builder, $hiddenClass)
     {
-        $this->reconfigurator = new FormReconfigurator($ruleSet, $builder, new FormAccessResolver(), new FormPropertyHelper());
+
+        $cssHelper = new CssHelper($hiddenClass);
+
+        $scalarMerger = new ScalarFormTypeOptionsMerger($cssHelper);
+
+        $repeatedMerger = new RepeatedTypeOptionsMerger($scalarMerger, $cssHelper);
+
+        $formPropertyHelper = new FormPropertyHelper();
+
+        $optionsMerger = new OptionsMergerService($formPropertyHelper, new ResponsibilityChecker(), $scalarMerger, $repeatedMerger);
+
+        $formReplacer = new FormReplacementService($builder, $optionsMerger, $formPropertyHelper);
+
+        $this->reconfigurator = new FormReconfigurator($ruleSet, new FormAccessResolver(), $formPropertyHelper, $formReplacer);
     }
 
     /**
